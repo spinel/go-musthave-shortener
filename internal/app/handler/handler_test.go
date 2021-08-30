@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testUrl = "https://yandex.ru/"
+const testURL = "https://yandex.ru/"
 
 func TestNewCreateEntityHandler(t *testing.T) {
 	type want struct {
@@ -26,7 +26,7 @@ func TestNewCreateEntityHandler(t *testing.T) {
 	}{
 		{
 			name:    "#1 post request test good payload",
-			payload: testUrl,
+			payload: testURL,
 			want: want{
 				code:        http.StatusCreated,
 				contentType: "text/plain; charset=utf-8",
@@ -54,6 +54,7 @@ func TestNewCreateEntityHandler(t *testing.T) {
 			h := http.HandlerFunc(NewCreateEntityHandler(repo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
+			defer res.Body.Close()
 			//status code
 			assert.EqualValues(t, tt.want.code, res.StatusCode)
 
@@ -96,7 +97,7 @@ func TestNewGetEntityGetEntityHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = repo.Entity.SaveEntity(testCode, model.Entity{URL: testUrl})
+	err = repo.Entity.SaveEntity(testCode, model.Entity{URL: testURL})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,6 +109,7 @@ func TestNewGetEntityGetEntityHandler(t *testing.T) {
 			h := http.HandlerFunc(NewGetEntityHandler(repo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
+			defer res.Body.Close()
 			//status code
 			assert.EqualValues(t, res.StatusCode, tt.want.code)
 		})
