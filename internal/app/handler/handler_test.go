@@ -9,11 +9,12 @@ import (
 
 	"github.com/spinel/go-musthave-shortener-tpl/internal/app/model"
 	"github.com/spinel/go-musthave-shortener-tpl/internal/app/repository"
+	"github.com/stretchr/testify/assert"
 )
 
 const testUrl = "https://yandex.ru/"
 
-func TestCreateShortenerHandler(t *testing.T) {
+func TestNewCreateEntityHandler(t *testing.T) {
 	type want struct {
 		code        int
 		contentType string
@@ -45,27 +46,24 @@ func TestCreateShortenerHandler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tt.payload))
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(CreateShortenerHandler(repo))
+			h := http.HandlerFunc(NewCreateEntityHandler(repo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			//status code
-			if res.StatusCode != tt.want.code {
-				t.Errorf("Expected status code %d; got %d", tt.want.code, res.StatusCode)
-			}
-			//content-type
-			if res.Header.Get("Content-Type") != tt.want.contentType {
-				t.Errorf("Expected content-type %v; got %v", tt.want.contentType, res.Header.Get("Content-type"))
-			}
+			assert.EqualValues(t, tt.want.code, res.StatusCode)
 
+			//content-type
+			assert.EqualValues(t, res.Header.Get("Content-Type"), tt.want.contentType)
 		})
 	}
 }
 
-func TestGetShortenerHandler(t *testing.T) {
+func TestNewGetEntityGetEntityHandler(t *testing.T) {
 	const testCode = "testtest"
 	type want struct {
 		code        int
@@ -97,21 +95,21 @@ func TestGetShortenerHandler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = repo.Shortener.SaveShortener(testCode, &model.Shortener{URL: testUrl})
+
+	err = repo.Entity.SaveEntity(testCode, model.Entity{URL: testUrl})
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			request := httptest.NewRequest("GET", fmt.Sprintf("/%s", tt.path), nil)
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(GetShortenerHandler(repo))
+			h := http.HandlerFunc(NewGetEntityHandler(repo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			//status code
-			if res.StatusCode != tt.want.code {
-				t.Errorf("Expected status code %d; got %d", tt.want.code, res.StatusCode)
-			}
+			assert.EqualValues(t, res.StatusCode, tt.want.code)
 		})
 	}
 }

@@ -11,9 +11,11 @@ import (
 func main() {
 	repo, err := repository.New()
 	if err != nil {
-		panic("no repo")
+		panic(err)
 	}
 
-	http.Handle("/", router.Router(repo))
+	go func() {
+		http.Handle("/", router.Router(repo))
+	}()
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
