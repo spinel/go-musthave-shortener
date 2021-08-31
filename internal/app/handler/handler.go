@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -86,4 +88,64 @@ func NewGetEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *
 
 		http.Redirect(w, r, entity.URL, http.StatusTemporaryRedirect)
 	}
+}
+
+// NewCreateJSONEntityHandler - get JSON body, shorten url.
+func NewCreateJSONEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+
+			return
+		}
+		entity := model.Entity{}
+		err = json.Unmarshal(body, &entity)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+
+			return
+		}
+
+		code, err := getCode(repo, entity.URL)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		result := model.Result{
+			URL: fmt.Sprintf("%s/%s", Host, code),
+		}
+		w.Header().Add("Content-type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(result)
+	}
+}
+
+func getCode(repo *repository.Store, url string) (string, error) {
+	if len(url) < 1 {
+		return "", errors.New("wrong url")
+	}
+	var code string
+	var err error
+	for {
+		code, err = pkg.NewGeneratedString()
+		if err != nil {
+			return "", err
+		}
+
+		if !repo.Entity.IncludesCode(string(code)) {
+			break
+		}
+	}
+	entity := model.Entity{
+		URL: url,
+	}
+
+	err = repo.Entity.SaveEntity(code, entity)
+	if err != nil {
+		return "", err
+	}
+	return code, nil
 }
