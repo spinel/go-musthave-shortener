@@ -31,28 +31,9 @@ func NewCreateEntityHandler(repo *repository.Store) func(w http.ResponseWriter, 
 			return
 		}
 
-		entity := model.Entity{
-			URL: url,
-		}
-		var code string
-		for {
-
-			code, err = pkg.NewGeneratedString()
-			if err != nil {
-				http.Error(w, "save entity error", http.StatusInternalServerError)
-				return
-			}
-
-			if !repo.Entity.IncludesCode(string(code)) {
-				break
-			}
-		}
-
-		err = repo.Entity.SaveEntity(code, entity)
+		code, err := getCode(repo, url)
 		if err != nil {
-			http.Error(w, "entity exists", http.StatusInternalServerError)
-
-			return
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
 		result := fmt.Sprintf("%s/%s", Host, code)
