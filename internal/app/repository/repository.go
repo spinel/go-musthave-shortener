@@ -6,5 +6,6 @@ import "github.com/spinel/go-musthave-shortener/internal/app/model"
 type URLShortener interface {
 	GetEntityBy(id string) (*model.Entity, error)
 	SaveEntity(id string, entity model.Entity) error
+	GetCode(url string) (string, error)
 	IncludesCode(id string) bool
 }

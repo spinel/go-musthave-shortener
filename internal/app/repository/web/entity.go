@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
+	"github.com/spinel/go-musthave-shortener/internal/app/pkg"
 )
 
 // EntityRepo is a repo for objects stored in memory(map).
@@ -37,4 +38,31 @@ func (repo *EntityRepo) SaveEntity(id string, entity model.Entity) error {
 func (repo *EntityRepo) IncludesCode(id string) bool {
 	_, found := repo.memory[id]
 	return found
+}
+
+func (repo *EntityRepo) GetCode(url string) (string, error) {
+	if len(url) < 1 {
+		return "", errors.New("wrong url")
+	}
+	var code string
+	var err error
+	for {
+		code, err = pkg.NewGeneratedString()
+		if err != nil {
+			return "", err
+		}
+
+		if !repo.IncludesCode(string(code)) {
+			break
+		}
+	}
+	entity := model.Entity{
+		URL: url,
+	}
+
+	err = repo.SaveEntity(code, entity)
+	if err != nil {
+		return "", err
+	}
+	return code, nil
 }
