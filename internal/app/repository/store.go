@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/spinel/go-musthave-shortener-tpl/internal/app/model"
-	"github.com/spinel/go-musthave-shortener-tpl/internal/app/repository/web"
+	"github.com/spinel/go-musthave-shortener/internal/app/model"
+	"github.com/spinel/go-musthave-shortener/internal/app/repository/web"
 )
 
 // Store main struct.
@@ -18,6 +18,6 @@ func New() (*Store, error) {
 		memoryDB: db,
 		Entity:   web.NewEntityRepo(db),
 	}
-	
+
 	return &store, nil
 }

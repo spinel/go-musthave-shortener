@@ -6,7 +6,7 @@ import (
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 )
 
-// EntityRepo is a repo for objects.
+// EntityRepo is a repo for objects stored in memory(map).
 type EntityRepo struct {
 	memory map[string]model.Entity
 }

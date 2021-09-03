@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spinel/go-musthave-shortener-tpl/internal/app/model"
-	"github.com/spinel/go-musthave-shortener-tpl/internal/app/repository"
+	"github.com/spinel/go-musthave-shortener/internal/app/model"
+	"github.com/spinel/go-musthave-shortener/internal/app/repository"
 	"github.com/stretchr/testify/assert"
 )
 

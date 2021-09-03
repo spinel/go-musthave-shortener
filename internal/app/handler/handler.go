@@ -8,14 +8,14 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/spinel/go-musthave-shortener-tpl/internal/app/model"
-	"github.com/spinel/go-musthave-shortener-tpl/internal/app/pkg"
-	"github.com/spinel/go-musthave-shortener-tpl/internal/app/repository"
+	"github.com/spinel/go-musthave-shortener/internal/app/model"
+	"github.com/spinel/go-musthave-shortener/internal/app/pkg"
+	"github.com/spinel/go-musthave-shortener/internal/app/repository"
 )
 
 const Host = "http://localhost:8080"
 
-// CreateEntityHandler - save entity in the store.
+// CreateEntityHandler - save entity to the store handler.
 func NewCreateEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
@@ -43,7 +43,7 @@ func NewCreateEntityHandler(repo *repository.Store) func(w http.ResponseWriter, 
 	}
 }
 
-// GetEntityHandler retrive entity from store by id.
+// GetEntityHandler retrive entity from store by id handler.
 func NewGetEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		pathSplit := strings.Split(r.URL.Path, "/")
@@ -57,13 +57,7 @@ func NewGetEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *
 
 		entity, err := repo.Entity.GetEntityBy(id)
 		if err != nil {
-			http.Error(w, "get entity error", http.StatusInternalServerError)
-			return
-		}
-
-		if entity.URL == "" {
-			http.Error(w, "not found", http.StatusNotFound)
-
+			http.Error(w, "entity not found", http.StatusNotFound)
 			return
 		}
 
@@ -71,7 +65,8 @@ func NewGetEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *
 	}
 }
 
-// NewCreateJSONEntityHandler - get JSON body, shorten url.
+// NewCreateJSONEntityHandler - API JSON version, save entity to the store handler.
+// Get JSON in body, return Result as JSON.
 func NewCreateJSONEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
