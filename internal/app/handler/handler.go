@@ -16,7 +16,7 @@ import (
 const Host = "http://localhost:8080"
 
 // CreateEntityHandler - save entity to the store handler.
-func NewCreateEntityHandler(repo repository.Repositorer) http.HandlerFunc {
+func NewCreateEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -44,7 +44,7 @@ func NewCreateEntityHandler(repo repository.Repositorer) http.HandlerFunc {
 }
 
 // GetEntityHandler retrive entity from store by id handler.
-func NewGetEntityHandler(repo repository.Repositorer) http.HandlerFunc {
+func NewGetEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		pathSplit := strings.Split(r.URL.Path, "/")
 
@@ -67,7 +67,7 @@ func NewGetEntityHandler(repo repository.Repositorer) http.HandlerFunc {
 
 // NewCreateJSONEntityHandler - API JSON version, save entity to the store handler.
 // Get JSON in body, return Result as JSON.
-func NewCreateJSONEntityHandler(repo repository.Repositorer) http.HandlerFunc {
+func NewCreateJSONEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 
@@ -99,7 +99,7 @@ func NewCreateJSONEntityHandler(repo repository.Repositorer) http.HandlerFunc {
 	}
 }
 
-func getCode(repo repository.Repositorer, url string) (string, error) {
+func getCode(repo repository.URLShortener, url string) (string, error) {
 	if len(url) < 1 {
 		return "", errors.New("wrong url")
 	}
