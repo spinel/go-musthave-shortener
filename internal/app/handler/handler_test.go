@@ -49,19 +49,19 @@ func TestNewCreateEntityHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			request := httptest.NewRequest("POST", "/", strings.NewReader(tt.payload))
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(NewCreateEntityHandler(repo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()
 			//status code
-			assert.EqualValues(t, tt.want.code, res.StatusCode)
+			assert.EqualValues(t, tc.want.code, res.StatusCode)
 
 			//content-type
-			assert.EqualValues(t, res.Header.Get("Content-Type"), tt.want.contentType)
+			assert.EqualValues(t, res.Header.Get("Content-Type"), tc.want.contentType)
 		})
 	}
 }
@@ -102,19 +102,19 @@ func TestNewCreateJSONEntityHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			request := httptest.NewRequest("POST", "/", strings.NewReader(tt.payload))
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(NewCreateJSONEntityHandler(repo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()
 			//status code
-			assert.EqualValues(t, tt.want.code, res.StatusCode)
+			assert.EqualValues(t, tc.want.code, res.StatusCode)
 
 			//content-type
-			assert.EqualValues(t, tt.want.contentType, res.Header.Get("Content-Type"))
+			assert.EqualValues(t, tc.want.contentType, res.Header.Get("Content-Type"))
 		})
 	}
 }
@@ -138,7 +138,7 @@ func TestNewGetEntityGetEntityHandler(t *testing.T) {
 			},
 		},
 		{
-			name: "#6 get request test",
+			name: "#6 get request test undefined code",
 			path: "_",
 			want: want{
 				code:        http.StatusNotFound,
@@ -156,16 +156,16 @@ func TestNewGetEntityGetEntityHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			request := httptest.NewRequest("GET", fmt.Sprintf("/%s", tt.path), nil)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			request := httptest.NewRequest("GET", fmt.Sprintf("/%s", tc.path), nil)
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(NewGetEntityHandler(repo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()
 			//status code
-			assert.EqualValues(t, res.StatusCode, tt.want.code)
+			assert.EqualValues(t, tc.want.code, res.StatusCode)
 		})
 	}
 }
