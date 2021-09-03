@@ -1,4 +1,4 @@
-module github.com/spinel/go-musthave-shortener-tpl
+module github.com/spinel/go-musthave-shortener
 
 go 1.16
 
