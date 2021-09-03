@@ -7,18 +7,20 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/spinel/go-musthave-shortener/internal/app/repository"
+	"github.com/spinel/go-musthave-shortener/internal/app/model"
+	"github.com/spinel/go-musthave-shortener/internal/app/repository/web"
 	"github.com/spinel/go-musthave-shortener/internal/app/router"
 )
 
 func main() {
-	// Init repo.
-	repo, err := repository.New()
-	if err != nil {
-		panic(err)
-	}
+	// Init store
+	db := make(map[string]model.Entity)
 
-	server := &http.Server{Addr: ":8080", Handler: router.NewRouter(repo)}
+	// Entity interface
+	entityRepo := web.NewEntityRepo(db)
+
+	server := &http.Server{Addr: ":8080", Handler: router.NewRouter(entityRepo)}
+
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
 			panic(err)

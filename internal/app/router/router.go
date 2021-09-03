@@ -7,7 +7,7 @@ import (
 )
 
 // Router for an app.
-func NewRouter(repo *repository.Store) *mux.Router {
+func NewRouter(repo repository.Repositorer) *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", handler.NewCreateEntityHandler(repo))
 	r.HandleFunc("/{id:[0-9a-z]+}", handler.NewGetEntityHandler(repo))

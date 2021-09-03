@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
-	"github.com/spinel/go-musthave-shortener/internal/app/repository"
+	"github.com/spinel/go-musthave-shortener/internal/app/repository/web"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -44,16 +44,17 @@ func TestNewCreateEntityHandler(t *testing.T) {
 			},
 		},
 	}
-	repo, err := repository.New()
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Init store
+	db := make(map[string]model.Entity)
+
+	// Entity interface
+	entityRepo := web.NewEntityRepo(db)
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewCreateEntityHandler(repo))
+			h := http.HandlerFunc(NewCreateEntityHandler(entityRepo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()
@@ -97,16 +98,18 @@ func TestNewCreateJSONEntityHandler(t *testing.T) {
 			},
 		},
 	}
-	repo, err := repository.New()
-	if err != nil {
-		t.Fatal(err)
-	}
+
+	// Init store
+	db := make(map[string]model.Entity)
+
+	// Entity interface
+	entityRepo := web.NewEntityRepo(db)
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewCreateJSONEntityHandler(repo))
+			h := http.HandlerFunc(NewCreateJSONEntityHandler(entityRepo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()
@@ -146,12 +149,14 @@ func TestNewGetEntityGetEntityHandler(t *testing.T) {
 			},
 		},
 	}
-	repo, err := repository.New()
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	err = repo.Entity.SaveEntity(testCode, model.Entity{URL: testURL})
+	// Init store
+	db := make(map[string]model.Entity)
+
+	// Entity interface
+	entityRepo := web.NewEntityRepo(db)
+
+	err := entityRepo.SaveEntity(testCode, model.Entity{URL: testURL})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -160,7 +165,7 @@ func TestNewGetEntityGetEntityHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("GET", fmt.Sprintf("/%s", tc.path), nil)
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewGetEntityHandler(repo))
+			h := http.HandlerFunc(NewGetEntityHandler(entityRepo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()

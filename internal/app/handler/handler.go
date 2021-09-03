@@ -16,7 +16,7 @@ import (
 const Host = "http://localhost:8080"
 
 // CreateEntityHandler - save entity to the store handler.
-func NewCreateEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *http.Request) {
+func NewCreateEntityHandler(repo repository.Repositorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -44,7 +44,7 @@ func NewCreateEntityHandler(repo *repository.Store) func(w http.ResponseWriter, 
 }
 
 // GetEntityHandler retrive entity from store by id handler.
-func NewGetEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *http.Request) {
+func NewGetEntityHandler(repo repository.Repositorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		pathSplit := strings.Split(r.URL.Path, "/")
 
@@ -55,7 +55,7 @@ func NewGetEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *
 		}
 		id := pathSplit[1]
 
-		entity, err := repo.Entity.GetEntityBy(id)
+		entity, err := repo.GetEntityBy(id)
 		if err != nil {
 			http.Error(w, "entity not found", http.StatusNotFound)
 			return
@@ -67,7 +67,7 @@ func NewGetEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *
 
 // NewCreateJSONEntityHandler - API JSON version, save entity to the store handler.
 // Get JSON in body, return Result as JSON.
-func NewCreateJSONEntityHandler(repo *repository.Store) func(w http.ResponseWriter, r *http.Request) {
+func NewCreateJSONEntityHandler(repo repository.Repositorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 
@@ -99,7 +99,7 @@ func NewCreateJSONEntityHandler(repo *repository.Store) func(w http.ResponseWrit
 	}
 }
 
-func getCode(repo *repository.Store, url string) (string, error) {
+func getCode(repo repository.Repositorer, url string) (string, error) {
 	if len(url) < 1 {
 		return "", errors.New("wrong url")
 	}
@@ -111,7 +111,7 @@ func getCode(repo *repository.Store, url string) (string, error) {
 			return "", err
 		}
 
-		if !repo.Entity.IncludesCode(string(code)) {
+		if !repo.IncludesCode(string(code)) {
 			break
 		}
 	}
@@ -119,7 +119,7 @@ func getCode(repo *repository.Store, url string) (string, error) {
 		URL: url,
 	}
 
-	err = repo.Entity.SaveEntity(code, entity)
+	err = repo.SaveEntity(code, entity)
 	if err != nil {
 		return "", err
 	}
