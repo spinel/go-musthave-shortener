@@ -12,7 +12,7 @@ import (
 type Config struct {
 	ServerAddress string `envconfig:"SERVER_ADDRESS"`
 	BaseURL       string `envconfig:"BASE_URL"`
-	GobFileName   string `envconfig:"GOB_FILENAME"`
+	GobFileName   string `envconfig:"FILE_STORAGE_PATH"`
 }
 
 var (
