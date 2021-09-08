@@ -66,3 +66,7 @@ func (repo *EntityRepo) GetCode(url string) (string, error) {
 	}
 	return code, nil
 }
+
+func (repo *EntityRepo) GetMemory() map[string]model.Entity {
+	return repo.memory
+}
