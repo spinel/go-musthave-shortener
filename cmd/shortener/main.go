@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -42,12 +43,13 @@ func main() {
 			select {
 			case <-done:
 				return
-			case _ = <-ticker.C:
+			case t := <-ticker.C:
 				memory := entityRepo.GetMemory()
 				err := s.SaveData(memory)
 				if err != nil {
 					panic(err)
 				}
+				log.Printf("%s data flushed", t)
 			}
 		}
 	}()
