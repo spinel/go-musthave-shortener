@@ -1,39 +1,32 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/repository/web"
 	"github.com/spinel/go-musthave-shortener/internal/app/router"
 	"github.com/spinel/go-musthave-shortener/internal/app/store"
 )
 
 func main() {
-	// gob db file
-	gobFileName := "urls.gob"
+	cfg := config.Get()
 
-	// gob writer
-	var gobWrite *bytes.Buffer
+	// build gob storage
+	s := store.NewStore(cfg.GobFileName)
+	defer s.Close()
 
-	//goob reader
-	gobRead, _ := os.Open(gobFileName)
-
-	// gob storage
-	s := store.NewStore(gobFileName, gobWrite, gobRead)
-
-	// memory storage
+	// load memory storage
 	memory, _ := s.GetData()
 
 	// Entity interface
 	entityRepo := web.NewEntityRepo(memory)
-	defer gobRead.Close()
 
-	server := &http.Server{Addr: ":8080", Handler: router.NewRouter(entityRepo)}
+	server := &http.Server{Addr: cfg.ServerAddress, Handler: router.NewRouter(entityRepo)}
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 	"github.com/spinel/go-musthave-shortener/internal/app/repository"
 )
@@ -17,6 +18,8 @@ const Host = "http://localhost:8080"
 func NewCreateEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
+		cfg := config.Get()
+
 		if err != nil {
 			http.Error(w, "wrong body", http.StatusBadRequest)
 
@@ -34,7 +37,7 @@ func NewCreateEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
-		result := fmt.Sprintf("%s/%s", Host, code)
+		result := fmt.Sprintf("%s/%s", cfg.BaseURL, code)
 		w.Header().Add("Content-type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte(result))
@@ -68,6 +71,7 @@ func NewGetEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 func NewCreateJSONEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
+		cfg := config.Get()
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -89,7 +93,7 @@ func NewCreateJSONEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 		}
 
 		result := model.Result{
-			URL: fmt.Sprintf("%s/%s", Host, code),
+			URL: fmt.Sprintf("%s/%s", cfg.BaseURL, code),
 		}
 		w.Header().Add("Content-type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusCreated)

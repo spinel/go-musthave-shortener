@@ -2,7 +2,6 @@ package store
 
 import (
 	"encoding/gob"
-	"io"
 	"os"
 
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
@@ -10,16 +9,17 @@ import (
 
 type Store struct {
 	gobFileName string
-	encoder     *gob.Encoder
+	gobFile     *os.File
 	decoder     *gob.Decoder
 }
 
 // NewStore is a gob storage builder
-func NewStore(gobFileName string, w io.Writer, r io.Reader) *Store {
+func NewStore(gobFileName string) *Store {
+	gobFile, _ := os.Open(gobFileName)
 	return &Store{
 		gobFileName: gobFileName,
-		encoder:     gob.NewEncoder(w),
-		decoder:     gob.NewDecoder(r),
+		gobFile:     gobFile,
+		decoder:     gob.NewDecoder(gobFile),
 	}
 }
 
@@ -38,4 +38,8 @@ func (s *Store) SaveData(memory map[string]model.Entity) error {
 	encoder := gob.NewEncoder(file)
 
 	return encoder.Encode(memory)
+}
+
+func (s *Store) Close() {
+	s.gobFile.Close()
 }
