@@ -10,9 +10,9 @@ import (
 )
 
 type Config struct {
-	ServerAddress string `envconfig:"SERVER_ADDRESS"`
-	BaseURL       string `envconfig:"BASE_URL"`
-	GobFileName   string `envconfig:"FILE_STORAGE_PATH"`
+	ServerAddress string `default:"localhost:9080" envconfig:"SERVER_ADDRESS"`
+	BaseURL       string `default:"http://localhost:9080" envconfig:"BASE_URL"`
+	GobFileName   string `default:"urls.gob" envconfig:"FILE_STORAGE_PATH"`
 }
 
 var (
