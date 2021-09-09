@@ -21,8 +21,8 @@ var (
 	once   sync.Once
 )
 
-const defaultServerAddress = "localhost:9080"
-const defaultBaseURL = "http://localhost:9080"
+const defaultServerAddress = "localhost:8080"
+const defaultBaseURL = "http://localhost:8080"
 const defaultCobFileName = "urls.gob"
 
 // NewConfig is a singleton env 	config constructor
