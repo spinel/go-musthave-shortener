@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"sync"
@@ -10,9 +11,9 @@ import (
 )
 
 type Config struct {
-	ServerAddress string `default:"localhost:9080" envconfig:"SERVER_ADDRESS"`
-	BaseURL       string `default:"http://localhost:9080" envconfig:"BASE_URL"`
-	GobFileName   string `default:"urls.gob" envconfig:"FILE_STORAGE_PATH"`
+	ServerAddress string `envconfig:"SERVER_ADDRESS"`
+	BaseURL       string `envconfig:"BASE_URL"`
+	GobFileName   string `envconfig:"FILE_STORAGE_PATH"`
 }
 
 var (
@@ -20,12 +21,22 @@ var (
 	once   sync.Once
 )
 
+const defaultServerAddress = "localhost:9080"
+const defaultBaseURL = "http://localhost:9080"
+const defaultCobFileName = "urls.gob"
+
 // NewConfig is a singleton env 	config constructor
 func Get() *Config {
 	once.Do(func() {
 		err := envconfig.Process("", &config)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		// bind flags or default
+		// values if env is empty
+		if (Config{}) == config {
+			bindFlag(&config)
 		}
 
 		configBytes, err := json.MarshalIndent(config, "", "  ")
@@ -36,4 +47,11 @@ func Get() *Config {
 	})
 
 	return &config
+}
+
+func bindFlag(config *Config) {
+	flag.StringVar(&config.ServerAddress, "a", defaultServerAddress, "app server address")
+	flag.StringVar(&config.BaseURL, "b", defaultBaseURL, "base url of links")
+	flag.StringVar(&config.GobFileName, "f", defaultCobFileName, "gob file path")
+	flag.Parse()
 }
