@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -21,12 +20,14 @@ var (
 	once   sync.Once
 )
 
-const defaultServerAddress = "localhost:8080"
-const defaultBaseURL = "http://localhost:8080"
-const defaultCobFileName = "urls.gob"
+const (
+	defaultServerAddress = "localhost:8080"
+	defaultBaseURL       = "http://localhost:8080"
+	defaultCobFileName   = "urls.gob"
+)
 
 // NewConfig is a singleton env 	config constructor
-func Get() *Config {
+func NewConfig() *Config {
 	once.Do(func() {
 		err := envconfig.Process("", &config)
 		if err != nil {
@@ -39,11 +40,8 @@ func Get() *Config {
 			bindFlag(&config)
 		}
 
-		configBytes, err := json.MarshalIndent(config, "", "  ")
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println("Configuration:", string(configBytes))
+		// show command line config
+		fmt.Println(config)
 	})
 
 	return &config

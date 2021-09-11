@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	cfg := config.Get()
+	cfg := config.NewConfig()
 
 	// build gob storage
 	s := store.NewStore(cfg.GobFileName)
@@ -27,7 +27,7 @@ func main() {
 	// Entity interface
 	entityRepo := web.NewEntityRepo(memory)
 
-	server := &http.Server{Addr: cfg.ServerAddress, Handler: router.NewRouter(entityRepo)}
+	server := &http.Server{Addr: cfg.ServerAddress, Handler: router.NewRouter(cfg, entityRepo)}
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
