@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 	"github.com/spinel/go-musthave-shortener/internal/app/repository/web"
 	"github.com/stretchr/testify/assert"
@@ -44,8 +45,11 @@ func TestNewCreateEntityHandler(t *testing.T) {
 			},
 		},
 	}
+
+	cfg := config.NewConfig()
+
 	// Init store
-	db := make(map[string]model.Entity)
+	db := make(model.MemoryMap)
 
 	// Entity interface
 	entityRepo := web.NewEntityRepo(db)
@@ -54,7 +58,7 @@ func TestNewCreateEntityHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewCreateEntityHandler(entityRepo))
+			h := http.HandlerFunc(NewCreateEntityHandler(cfg, entityRepo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()
@@ -99,8 +103,10 @@ func TestNewCreateJSONEntityHandler(t *testing.T) {
 		},
 	}
 
+	cfg := config.NewConfig()
+
 	// Init store
-	db := make(map[string]model.Entity)
+	db := make(model.MemoryMap)
 
 	// Entity interface
 	entityRepo := web.NewEntityRepo(db)
@@ -109,7 +115,7 @@ func TestNewCreateJSONEntityHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewCreateJSONEntityHandler(entityRepo))
+			h := http.HandlerFunc(NewCreateJSONEntityHandler(cfg, entityRepo))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()
@@ -151,7 +157,7 @@ func TestNewGetEntityGetEntityHandler(t *testing.T) {
 	}
 
 	// Init store
-	db := make(map[string]model.Entity)
+	db := make(model.MemoryMap)
 
 	// Entity interface
 	entityRepo := web.NewEntityRepo(db)

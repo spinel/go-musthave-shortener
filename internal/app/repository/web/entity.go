@@ -9,11 +9,11 @@ import (
 
 // EntityRepo is a repo for objects stored in memory(map).
 type EntityRepo struct {
-	memory map[string]model.Entity
+	memory model.MemoryMap
 }
 
 // NewEntityRepo is a builder of repository.
-func NewEntityRepo(db map[string]model.Entity) *EntityRepo {
+func NewEntityRepo(db model.MemoryMap) *EntityRepo {
 	var repo EntityRepo
 	repo.memory = db
 
@@ -67,6 +67,6 @@ func (repo *EntityRepo) GetCode(url string) (string, error) {
 	return code, nil
 }
 
-func (repo *EntityRepo) GetMemory() map[string]model.Entity {
+func (repo *EntityRepo) GetMemory() model.MemoryMap {
 	return repo.memory
 }

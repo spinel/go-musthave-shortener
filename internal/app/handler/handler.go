@@ -15,10 +15,9 @@ import (
 const Host = "http://localhost:8080"
 
 // CreateEntityHandler - save entity to the store handler.
-func NewCreateEntityHandler(repo repository.URLShortener) http.HandlerFunc {
+func NewCreateEntityHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
-		cfg := config.Get()
 
 		if err != nil {
 			http.Error(w, "wrong body", http.StatusBadRequest)
@@ -68,10 +67,9 @@ func NewGetEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 
 // NewCreateJSONEntityHandler - API JSON version, save entity to the store handler.
 // Get JSON in body, return Result as JSON.
-func NewCreateJSONEntityHandler(repo repository.URLShortener) http.HandlerFunc {
+func NewCreateJSONEntityHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
-		cfg := config.Get()
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

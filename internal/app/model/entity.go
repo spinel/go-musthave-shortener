@@ -11,3 +11,5 @@ type Entity struct {
 type Result struct {
 	URL string `json:"result"`
 }
+
+type MemoryMap map[string]Entity
