@@ -16,6 +16,9 @@ import (
 
 func main() {
 	cfg := config.NewConfig()
+	if err := cfg.Validate(); err != nil {
+		panic(err)
+	}
 
 	// build gob storage
 	s := store.NewStore(cfg.GobFileName)

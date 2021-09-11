@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -52,4 +53,11 @@ func bindFlag(config *Config) {
 	flag.StringVar(&config.BaseURL, "b", defaultBaseURL, "base url of links")
 	flag.StringVar(&config.GobFileName, "f", defaultCobFileName, "gob file path")
 	flag.Parse()
+}
+
+func (c Config) Validate() error {
+	if (Config{}) == c {
+		return errors.New("empty config")
+	}
+	return nil
 }
