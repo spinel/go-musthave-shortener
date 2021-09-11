@@ -8,7 +8,7 @@ import (
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 )
 
-type Store struct {
+type store struct {
 	mu          sync.Mutex
 	gobFileName string
 	gobFile     *os.File
@@ -16,9 +16,9 @@ type Store struct {
 }
 
 // NewStore is a gob storage builder
-func NewStore(gobFileName string) *Store {
+func NewStore(gobFileName string) *store {
 	gobFile, _ := os.Open(gobFileName)
-	return &Store{
+	return &store{
 		gobFileName: gobFileName,
 		gobFile:     gobFile,
 		decoder:     gob.NewDecoder(gobFile),
@@ -26,9 +26,9 @@ func NewStore(gobFileName string) *Store {
 }
 
 // GetData retrives data from gob file
-func (s *Store) GetData() (map[string]model.Entity, error) {
+func (s *store) GetData() (model.MemoryMap, error) {
 	s.mu.Lock()
-	memory := make(map[string]model.Entity)
+	memory := make(model.MemoryMap)
 	s.decoder.Decode(&memory)
 	defer s.mu.Unlock()
 
@@ -36,7 +36,7 @@ func (s *Store) GetData() (map[string]model.Entity, error) {
 }
 
 // SaveData save memory storage to gob file
-func (s *Store) SaveData(memory map[string]model.Entity) error {
+func (s *store) SaveData(memory model.MemoryMap) error {
 	s.mu.Lock()
 	file, _ := os.Create(s.gobFileName)
 	defer file.Close()
@@ -46,6 +46,6 @@ func (s *Store) SaveData(memory map[string]model.Entity) error {
 	return encoder.Encode(memory)
 }
 
-func (s *Store) Close() {
+func (s *store) Close() {
 	s.gobFile.Close()
 }
