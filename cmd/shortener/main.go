@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
+	"github.com/spinel/go-musthave-shortener/internal/app/handler/middleware"
 	"github.com/spinel/go-musthave-shortener/internal/app/repository/web"
 	"github.com/spinel/go-musthave-shortener/internal/app/router"
 	"github.com/spinel/go-musthave-shortener/internal/app/store"
@@ -30,30 +30,11 @@ func main() {
 	// Entity interface
 	entityRepo := web.NewEntityRepo(memory)
 
-	server := &http.Server{Addr: cfg.ServerAddress, Handler: router.NewRouter(cfg, entityRepo)}
+	server := &http.Server{Addr: cfg.ServerAddress, Handler: middleware.GzipHandle(router.NewRouter(cfg, entityRepo))}
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
 			panic(err)
-		}
-	}()
-
-	ticker := time.NewTicker(5 * time.Second)
-	done := make(chan bool)
-
-	go func() {
-		for {
-			select {
-			case <-done:
-				return
-			case t := <-ticker.C:
-				memory := entityRepo.GetMemory()
-				err := s.SaveData(memory)
-				if err != nil {
-					panic(err)
-				}
-				log.Printf("%s data flushed", t)
-			}
 		}
 	}()
 
@@ -73,6 +54,4 @@ func main() {
 		panic(err)
 	}
 
-	ticker.Stop()
-	done <- true
 }
