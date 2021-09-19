@@ -9,9 +9,8 @@ import (
 
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/handler/middleware"
-	"github.com/spinel/go-musthave-shortener/internal/app/repository/web"
+	"github.com/spinel/go-musthave-shortener/internal/app/repository"
 	"github.com/spinel/go-musthave-shortener/internal/app/router"
-	"github.com/spinel/go-musthave-shortener/internal/app/store"
 )
 
 func main() {
@@ -20,17 +19,14 @@ func main() {
 		panic(err)
 	}
 
-	// build gob storage
-	s := store.NewStore(cfg.GobFileName)
-	defer s.Close()
+	repo := repository.NewStorage(cfg.GobFileName)
 
-	// load memory storage
-	memory, _ := s.GetData()
-
-	// Entity interface
-	entityRepo := web.NewEntityRepo(memory)
-
-	server := &http.Server{Addr: cfg.ServerAddress, Handler: middleware.GzipHandle(router.NewRouter(cfg, entityRepo))}
+	server := &http.Server{
+		Addr: cfg.ServerAddress,
+		Handler: middleware.GzipHandle(
+			router.NewRouter(cfg, repo.Entity),
+		),
+	}
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
@@ -53,5 +49,4 @@ func main() {
 	if err := server.Shutdown(ctx); err != nil {
 		panic(err)
 	}
-
 }

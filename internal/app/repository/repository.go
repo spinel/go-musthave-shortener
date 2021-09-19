@@ -8,4 +8,5 @@ type URLShortener interface {
 	SaveEntity(id string, entity model.Entity) error
 	GetCode(url string) (string, error)
 	IncludesCode(id string) bool
+	GetMemory() model.MemoryMap
 }

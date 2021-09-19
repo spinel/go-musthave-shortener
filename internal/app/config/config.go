@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/url"
 	"sync"
 
 	"github.com/kelseyhightower/envconfig"
@@ -58,6 +59,17 @@ func bindFlag(config *Config) {
 func (c Config) Validate() error {
 	if (Config{}) == c {
 		return errors.New("empty config")
+	}
+	_, err := url.ParseRequestURI(c.BaseURL)
+	if err != nil {
+		return err
+	}
+	_, err = url.ParseRequestURI(c.ServerAddress)
+	if err != nil {
+		return err
+	}
+	if len(c.GobFileName) == 0 {
+		return errors.New("no gob file")
 	}
 	return nil
 }
