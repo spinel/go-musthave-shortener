@@ -68,10 +68,10 @@ func NewGetEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 }
 
 // NewGetUserURLSHandler retrive current user urls
-func NewGetUserURLSHandler(repo repository.URLShortener) http.HandlerFunc {
+func NewGetUserURLSHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		urlMappingPool := repo.GetByUser(ctx)
+		urlMappingPool := repo.GetByUser(ctx, cfg)
 
 		if len(urlMappingPool) == 0 {
 			w.WriteHeader(http.StatusNoContent)

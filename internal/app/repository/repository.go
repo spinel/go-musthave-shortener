@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 )
 
@@ -11,6 +12,6 @@ type URLShortener interface {
 	GetEntityBy(id string) (*model.Entity, error)
 	SaveEntity(id string, entity model.Entity) error
 	GetCode(ctx context.Context, url string) (string, error)
-	GetByUser(ctx context.Context) []model.URLMapping
+	GetByUser(ctx context.Context, cfg *config.Config) []model.URLMapping
 	GetMemory() model.MemoryMap
 }

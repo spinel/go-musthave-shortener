@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 	"github.com/spinel/go-musthave-shortener/internal/app/pkg"
 )
@@ -60,7 +61,7 @@ func (repo *EntityRepo) GetCode(ctx context.Context, url string) (string, error)
 		}
 	}
 
-	userUUIDString := ctx.Value("userUUId").(string)
+	userUUIDString := ctx.Value(model.CookieContextName).(string)
 	userUUID, _ := uuid.Parse(userUUIDString)
 
 	entity := model.Entity{
@@ -76,8 +77,8 @@ func (repo *EntityRepo) GetCode(ctx context.Context, url string) (string, error)
 	return code, nil
 }
 
-func (repo *EntityRepo) GetByUser(ctx context.Context) []model.URLMapping {
-	userUUIDString := ctx.Value("userUUId").(string)
+func (repo *EntityRepo) GetByUser(ctx context.Context, cfg *config.Config) []model.URLMapping {
+	userUUIDString := ctx.Value(model.CookieContextName).(string)
 	userUUID, _ := uuid.Parse(userUUIDString)
 
 	var urlMappingPool []model.URLMapping
@@ -85,7 +86,7 @@ func (repo *EntityRepo) GetByUser(ctx context.Context) []model.URLMapping {
 	for code, entity := range repo.memory {
 		if entity.UserUUID == userUUID {
 			box := model.URLMapping{
-				ShortURL:    fmt.Sprintf("%s/%s", "http://localhost:8080", code),
+				ShortURL:    fmt.Sprintf("%s/%s", cfg.BaseURL, code),
 				OriginalURL: entity.URL,
 			}
 			urlMappingPool = append(urlMappingPool, box)
