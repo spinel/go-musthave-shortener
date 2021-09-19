@@ -23,8 +23,10 @@ func main() {
 
 	server := &http.Server{
 		Addr: cfg.ServerAddress,
-		Handler: middleware.GzipHandle(
-			router.NewRouter(cfg, repo.Entity),
+		Handler: middleware.CookieHandle(
+			middleware.GzipHandle(
+				router.NewRouter(cfg, repo.Entity),
+			),
 		),
 	}
 

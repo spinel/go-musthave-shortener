@@ -26,7 +26,6 @@ func NewStorage(gobFileName string) *Storage {
 	decoder := gob.NewDecoder(gobFile)
 	decoder.Decode(&memory)
 
-	// Entity interface
 	entityRepo := web.NewEntityRepo(memory)
 
 	s := &Storage{
@@ -41,7 +40,7 @@ func NewStorage(gobFileName string) *Storage {
 }
 
 // SaveData save memory storage to gob file
-func (s *Storage) SaveData(memory model.MemoryMap) error {
+func (s *Storage) saveData(memory model.MemoryMap) error {
 	s.mu.Lock()
 	file, _ := os.Create(s.gobFileName)
 	defer file.Close()
@@ -51,7 +50,7 @@ func (s *Storage) SaveData(memory model.MemoryMap) error {
 	return encoder.Encode(memory)
 }
 
-func (s *Storage) Close() {
+func (s *Storage) close() {
 	s.gobFile.Close()
 }
 
@@ -66,7 +65,7 @@ func (s *Storage) flush() {
 				return
 			case t := <-ticker.C:
 				memory := s.Entity.GetMemory()
-				err := s.SaveData(memory)
+				err := s.saveData(memory)
 				if err != nil {
 					panic(err)
 				}
