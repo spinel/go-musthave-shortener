@@ -18,6 +18,7 @@ const Host = "http://localhost:8080"
 func NewCreateEntityHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
+		ctx := r.Context()
 
 		if err != nil {
 			http.Error(w, "wrong body", http.StatusBadRequest)
@@ -31,7 +32,7 @@ func NewCreateEntityHandler(cfg *config.Config, repo repository.URLShortener) ht
 			return
 		}
 
-		code, err := repo.GetCode(url)
+		code, err := repo.GetCode(ctx, url)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -39,6 +40,7 @@ func NewCreateEntityHandler(cfg *config.Config, repo repository.URLShortener) ht
 		result := fmt.Sprintf("%s/%s", cfg.BaseURL, code)
 		w.Header().Add("Content-type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusCreated)
+
 		w.Write([]byte(result))
 	}
 }
@@ -65,11 +67,37 @@ func NewGetEntityHandler(repo repository.URLShortener) http.HandlerFunc {
 	}
 }
 
+// NewGetUserURLSHandler retrive current user urls
+func NewGetUserURLSHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		urlMappingPool := repo.GetByUser(ctx, cfg)
+
+		if len(urlMappingPool) == 0 {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		w.Header().Add("Content-type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+
+		json.NewEncoder(w).Encode(urlMappingPool)
+	}
+}
+
+// NewPingHandler for check pg db connection
+func NewPingHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("1")
+	}
+}
+
 // NewCreateJSONEntityHandler - API JSON version, save entity to the store handler.
 // Get JSON in body, return Result as JSON.
 func NewCreateJSONEntityHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
+		ctx := r.Context()
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -85,7 +113,7 @@ func NewCreateJSONEntityHandler(cfg *config.Config, repo repository.URLShortener
 			return
 		}
 
-		code, err := repo.GetCode(entity.URL)
+		code, err := repo.GetCode(ctx, entity.URL)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -95,6 +123,7 @@ func NewCreateJSONEntityHandler(cfg *config.Config, repo repository.URLShortener
 		}
 		w.Header().Add("Content-type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusCreated)
+
 		json.NewEncoder(w).Encode(result)
 	}
 }

@@ -19,12 +19,17 @@ func main() {
 		panic(err)
 	}
 
-	repo := repository.NewStorage(cfg.GobFileName)
+	repo, err := repository.NewStorage(cfg)
+	if err != nil {
+		panic(err)
+	}
 
 	server := &http.Server{
 		Addr: cfg.ServerAddress,
-		Handler: middleware.GzipHandle(
-			router.NewRouter(cfg, repo.Entity),
+		Handler: middleware.CookieHandle(
+			middleware.GzipHandle(
+				router.NewRouter(cfg, repo.Entity),
+			),
 		),
 	}
 

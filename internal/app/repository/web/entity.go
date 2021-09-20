@@ -1,8 +1,12 @@
 package web
 
 import (
+	"context"
 	"errors"
+	"fmt"
 
+	"github.com/google/uuid"
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 	"github.com/spinel/go-musthave-shortener/internal/app/pkg"
 )
@@ -35,12 +39,12 @@ func (repo *EntityRepo) SaveEntity(id string, entity model.Entity) error {
 }
 
 // IncludesCode check if id exists in repo.
-func (repo *EntityRepo) IncludesCode(id string) bool {
+func (repo *EntityRepo) includesCode(id string) bool {
 	_, found := repo.memory[id]
 	return found
 }
 
-func (repo *EntityRepo) GetCode(url string) (string, error) {
+func (repo *EntityRepo) GetCode(ctx context.Context, url string) (string, error) {
 	if len(url) < 1 {
 		return "", errors.New("wrong url")
 	}
@@ -52,19 +56,43 @@ func (repo *EntityRepo) GetCode(url string) (string, error) {
 			return "", err
 		}
 
-		if !repo.IncludesCode(string(code)) {
+		if !repo.includesCode(string(code)) {
 			break
 		}
 	}
+
+	userUUIDString := ctx.Value(model.CookieContextName).(string)
+	userUUID, _ := uuid.Parse(userUUIDString)
+
 	entity := model.Entity{
-		URL: url,
+		URL:      url,
+		UserUUID: userUUID,
 	}
 
 	err = repo.SaveEntity(code, entity)
 	if err != nil {
 		return "", err
 	}
+
 	return code, nil
+}
+
+func (repo *EntityRepo) GetByUser(ctx context.Context, cfg *config.Config) []model.URLMapping {
+	userUUIDString := ctx.Value(model.CookieContextName).(string)
+	userUUID, _ := uuid.Parse(userUUIDString)
+
+	var urlMappingPool []model.URLMapping
+
+	for code, entity := range repo.memory {
+		if entity.UserUUID == userUUID {
+			box := model.URLMapping{
+				ShortURL:    fmt.Sprintf("%s/%s", cfg.BaseURL, code),
+				OriginalURL: entity.URL,
+			}
+			urlMappingPool = append(urlMappingPool, box)
+		}
+	}
+	return urlMappingPool
 }
 
 func (repo *EntityRepo) GetMemory() model.MemoryMap {
