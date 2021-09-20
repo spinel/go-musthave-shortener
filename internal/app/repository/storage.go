@@ -7,7 +7,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
+	"github.com/spinel/go-musthave-shortener/internal/app/repository/pg"
 	"github.com/spinel/go-musthave-shortener/internal/app/repository/web"
 )
 
@@ -16,12 +19,18 @@ type Storage struct {
 	gobFileName string
 	gobFile     *os.File
 
+	Pg     *pg.DB
 	Entity URLShortener
 }
 
 // NewStorage is a gob storage builder
-func NewStorage(gobFileName string) *Storage {
-	gobFile, _ := os.Open(gobFileName)
+func NewStorage(cfg *config.Config) (*Storage, error) {
+	pgDB, err := pg.Dial(cfg)
+	if err != nil {
+		return nil, errors.Wrap(err, "pgdb.Dial failed")
+	}
+
+	gobFile, _ := os.Open(cfg.GobFileName)
 	memory := make(model.MemoryMap)
 	decoder := gob.NewDecoder(gobFile)
 	decoder.Decode(&memory)
@@ -29,14 +38,15 @@ func NewStorage(gobFileName string) *Storage {
 	entityRepo := web.NewEntityRepo(memory)
 
 	s := &Storage{
-		gobFileName: gobFileName,
+		gobFileName: cfg.GobFileName,
 		gobFile:     gobFile,
 
+		Pg:     pgDB,
 		Entity: entityRepo,
 	}
 	s.flush()
 
-	return s
+	return s, nil
 }
 
 // SaveData save memory storage to gob file

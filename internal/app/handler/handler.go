@@ -85,6 +85,13 @@ func NewGetUserURLSHandler(cfg *config.Config, repo repository.URLShortener) htt
 	}
 }
 
+// NewPingHandler for check pg db connection
+func NewPingHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("1")
+	}
+}
+
 // NewCreateJSONEntityHandler - API JSON version, save entity to the store handler.
 // Get JSON in body, return Result as JSON.
 func NewCreateJSONEntityHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {

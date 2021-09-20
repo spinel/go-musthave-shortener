@@ -19,7 +19,10 @@ func main() {
 		panic(err)
 	}
 
-	repo := repository.NewStorage(cfg.GobFileName)
+	repo, err := repository.NewStorage(cfg)
+	if err != nil {
+		panic(err)
+	}
 
 	server := &http.Server{
 		Addr: cfg.ServerAddress,
