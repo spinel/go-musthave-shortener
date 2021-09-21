@@ -19,7 +19,9 @@ type Storage struct {
 	gobFileName string
 	gobFile     *os.File
 
-	Pg     *pg.DB
+	Pg       *pg.DB
+	EntityPg URLShortener
+
 	Entity URLShortener
 }
 
@@ -36,13 +38,16 @@ func NewStorage(cfg *config.Config) (*Storage, error) {
 	decoder.Decode(&memory)
 
 	entityRepo := web.NewEntityRepo(memory)
+	entityRepoPg := pg.NewEntityPgRepo(pgDB)
 
 	s := &Storage{
 		gobFileName: cfg.GobFileName,
 		gobFile:     gobFile,
 
-		Pg:     pgDB,
 		Entity: entityRepo,
+
+		Pg:       pgDB,
+		EntityPg: entityRepoPg,
 	}
 	s.flush()
 

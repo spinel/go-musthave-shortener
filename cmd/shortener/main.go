@@ -28,7 +28,7 @@ func main() {
 		Addr: cfg.ServerAddress,
 		Handler: middleware.CookieHandle(
 			middleware.GzipHandle(
-				router.NewRouter(cfg, repo.Entity),
+				router.NewRouter(cfg, repo.EntityPg),
 			),
 		),
 	}

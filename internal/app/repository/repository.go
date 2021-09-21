@@ -14,4 +14,5 @@ type URLShortener interface {
 	GetCode(ctx context.Context, url string) (string, error)
 	GetByUser(ctx context.Context, cfg *config.Config) []model.URLMapping
 	GetMemory() model.MemoryMap
+	Ping() bool
 }

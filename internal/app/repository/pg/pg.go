@@ -9,7 +9,8 @@ import (
 
 const (
 	// Timeout is a Postgres timeout
-	Timeout = 5
+	Timeout    = 5
+	notDeleted = "deleted_at is null"
 
 	PgURL = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 )
