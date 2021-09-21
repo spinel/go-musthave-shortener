@@ -2,7 +2,6 @@ package repository
 
 import (
 	"encoding/gob"
-	"fmt"
 	"os"
 	"sync"
 	"time"
@@ -78,13 +77,12 @@ func (s *Storage) flush() {
 			select {
 			case <-done:
 				return
-			case t := <-ticker.C:
+			case _ = <-ticker.C:
 				memory := s.Entity.GetMemory()
 				err := s.saveData(memory)
 				if err != nil {
 					panic(err)
 				}
-				fmt.Println("memory flushed at", t)
 			}
 		}
 	}()

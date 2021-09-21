@@ -16,13 +16,13 @@ import (
 func NewCreateEntityHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
-		ctx := r.Context()
-
 		if err != nil {
 			http.Error(w, "wrong body", http.StatusBadRequest)
 
 			return
 		}
+		ctx := r.Context()
+
 		url := string(body)
 		if url == "" {
 			http.Error(w, "no body", http.StatusBadRequest)
@@ -126,6 +126,33 @@ func NewPingHandler(repo repository.URLShortener) http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 		if !repo.Ping() {
 			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}
+}
+
+// NewBatchHandler - batch urls create
+func NewBatchHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "wrong body", http.StatusBadRequest)
+
+			return
+		}
+		ctx := r.Context()
+
+		var batch []model.RequestBatchURLS
+
+		err = json.Unmarshal(body, &batch)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = repo.SaveBatch(ctx, batch)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	}
 }

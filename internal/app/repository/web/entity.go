@@ -103,3 +103,7 @@ func (repo *EntityRepo) Ping() bool {
 	_, ok := repo.memory["testtest"]
 	return ok
 }
+
+func (repo *EntityRepo) SaveBatch(ctx context.Context, batch []model.RequestBatchURLS) error {
+	return nil
+}

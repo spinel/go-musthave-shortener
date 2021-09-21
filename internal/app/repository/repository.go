@@ -15,4 +15,5 @@ type URLShortener interface {
 	GetByUser(ctx context.Context, cfg *config.Config) []model.URLMapping
 	GetMemory() model.MemoryMap
 	Ping() bool
+	SaveBatch(ctx context.Context, batch []model.RequestBatchURLS) error
 }

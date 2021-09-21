@@ -66,8 +66,7 @@ func (entityRepo *EntityPgRepo) GetCode(ctx context.Context, url string) (string
 		return "", err
 	}
 
-	userUUIDString := ctx.Value(model.CookieContextName).(string)
-	userUUID, _ := uuid.Parse(userUUIDString)
+	userUUID := getUserUUIDFromCtx(ctx)
 
 	entity := model.Entity{
 		Code:     code,
@@ -84,4 +83,43 @@ func (entityRepo *EntityPgRepo) GetCode(ctx context.Context, url string) (string
 
 func (entityRepo *EntityPgRepo) GetMemory() model.MemoryMap {
 	return nil
+}
+
+func (entityRepo *EntityPgRepo) SaveBatch(ctx context.Context, batch []model.RequestBatchURLS) error {
+	userUUID := getUserUUIDFromCtx(ctx)
+
+	tx, err := entityRepo.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Close()
+
+	// prepare each entity to commit.
+	for _, entity := range batch {
+		entity := model.Entity{
+			Code:     entity.CorrelationID,
+			URL:      entity.OriginalURL,
+			UserUUID: userUUID,
+		}
+
+		_, err := tx.Model(&entity).
+			Returning("*").
+			Insert()
+		if err != nil {
+			return err
+		}
+
+	}
+
+	// commit on success.
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func getUserUUIDFromCtx(ctx context.Context) uuid.UUID {
+	userUUIDString := ctx.Value(model.CookieContextName).(string)
+	userUUID, _ := uuid.Parse(userUUIDString)
+	return userUUID
 }
