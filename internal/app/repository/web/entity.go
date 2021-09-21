@@ -98,3 +98,8 @@ func (repo *EntityRepo) GetByUser(ctx context.Context, cfg *config.Config) []mod
 func (repo *EntityRepo) GetMemory() model.MemoryMap {
 	return repo.memory
 }
+
+func (repo *EntityRepo) Ping() bool {
+	_, ok := repo.memory["testtest"]
+	return ok
+}

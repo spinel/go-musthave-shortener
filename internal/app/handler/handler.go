@@ -12,8 +12,6 @@ import (
 	"github.com/spinel/go-musthave-shortener/internal/app/repository"
 )
 
-const Host = "http://localhost:8080"
-
 // CreateEntityHandler - save entity to the store handler.
 func NewCreateEntityHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -85,13 +83,6 @@ func NewGetUserURLSHandler(cfg *config.Config, repo repository.URLShortener) htt
 	}
 }
 
-// NewPingHandler for check pg db connection
-func NewPingHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("1")
-	}
-}
-
 // NewCreateJSONEntityHandler - API JSON version, save entity to the store handler.
 // Get JSON in body, return Result as JSON.
 func NewCreateJSONEntityHandler(cfg *config.Config, repo repository.URLShortener) http.HandlerFunc {
@@ -125,5 +116,16 @@ func NewCreateJSONEntityHandler(cfg *config.Config, repo repository.URLShortener
 		w.WriteHeader(http.StatusCreated)
 
 		json.NewEncoder(w).Encode(result)
+	}
+}
+
+// NewPingHandler for check pg db connection
+func NewPingHandler(repo repository.URLShortener) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-type", "text/plain; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		if !repo.Ping() {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}
 }
