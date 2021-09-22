@@ -52,7 +52,23 @@ func (entityRepo *EntityPgRepo) SaveEntity(code string, entity model.Entity) err
 }
 
 func (entityRepo *EntityPgRepo) GetByUser(ctx context.Context, cfg *config.Config) []model.URLMapping {
+	userUUIDString := ctx.Value(model.CookieContextName).(string)
+	userUUID, _ := uuid.Parse(userUUIDString)
+
+	var entityPool []model.Entity
+	err := entityRepo.db.Model(&entityPool).
+		Where("user_uuid = ?", userUUID).
+		Where(notDeleted).
+		Select()
+	if err != nil {
+		return nil
+	}
+
+	// convert Entity to URLMapping
 	var urlMappingPool []model.URLMapping
+	for _, entity := range entityPool {
+		urlMappingPool = append(urlMappingPool, entity.ToURLMapping())
+	}
 
 	return urlMappingPool
 }

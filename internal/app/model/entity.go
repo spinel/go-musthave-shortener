@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -31,6 +32,14 @@ func (e *Entity) BeforeInsert(ctx context.Context) (context.Context, error) {
 		e.UpdatedAt = now
 	}
 	return ctx, nil
+}
+
+//ToUser convert profile struct of id.prosv to User model
+func (e *Entity) ToURLMapping() URLMapping {
+	return URLMapping{
+		OriginalURL: e.URL,
+		ShortURL:    fmt.Sprintf("%s/%s", "http://localhost:8080", e.Code),
+	}
 }
 
 // Result is response url struct for API.
