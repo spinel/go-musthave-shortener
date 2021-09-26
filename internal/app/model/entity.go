@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 )
 
 // Entity is stored URL object.
@@ -34,11 +35,11 @@ func (e *Entity) BeforeInsert(ctx context.Context) (context.Context, error) {
 	return ctx, nil
 }
 
-//ToUser convert profile struct of id.prosv to User model
-func (e *Entity) ToURLMapping() URLMapping {
+// ToURLMapping convert Entity to URLMapping struct.
+func (e *Entity) ToURLMapping(cfg *config.Config) URLMapping {
 	return URLMapping{
 		OriginalURL: e.URL,
-		ShortURL:    fmt.Sprintf("%s/%s", "http://localhost:8080", e.Code),
+		ShortURL:    fmt.Sprintf("%s/%s", cfg.BaseURL, e.Code),
 	}
 }
 
@@ -57,4 +58,5 @@ type URLMapping struct {
 type RequestBatchURLS struct {
 	CorrelationID string `json:"correlation_id"`
 	OriginalURL   string `json:"original_url"`
+	ShortURL      string `json:"short_url"`
 }

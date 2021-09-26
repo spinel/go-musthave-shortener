@@ -8,14 +8,14 @@ import (
 )
 
 // Router for an app.
-func NewRouter(cfg *config.Config, repo repository.URLShortener) *mux.Router {
+func NewRouter(cfg *config.Config, repo repository.UrlStorer) *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/", handler.NewCreateEntityHandler(cfg, repo))
+	r.HandleFunc("/", handler.NewCreateUrlHandler(cfg, repo))
+	r.HandleFunc("/api/shorten", handler.NewCreateJsonUrlHandler(cfg, repo))
 	r.HandleFunc("/ping", handler.NewPingHandler(repo))
-	r.HandleFunc("/{id:[0-9a-z]+}", handler.NewGetEntityHandler(repo))
-	r.HandleFunc("/user/urls", handler.NewGetUserURLSHandler(cfg, repo))
-	r.HandleFunc("/api/shorten", handler.NewCreateJSONEntityHandler(cfg, repo))
-	r.HandleFunc("/api/shorten/batch", handler.NewBatchHandler(cfg, repo))
+	r.HandleFunc("/user/urls", handler.NewGetUserUrlsHandler(cfg, repo))
+	r.HandleFunc("/api/shorten/batch", handler.NewCreateBatchHandler(cfg, repo))
+	r.HandleFunc("/{id:[0-9a-z]+}", handler.NewGetUrlHandler(repo))
 
 	return r
 }

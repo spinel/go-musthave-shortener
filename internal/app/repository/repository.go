@@ -3,17 +3,15 @@ package repository
 import (
 	"context"
 
-	"github.com/spinel/go-musthave-shortener/internal/app/config"
+	"github.com/google/uuid"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 )
 
-// URLShortener defines ntity operations.
-type URLShortener interface {
-	GetEntityBy(id string) (*model.Entity, error)
-	SaveEntity(id string, entity model.Entity) error
-	GetCode(ctx context.Context, url string) (string, error)
-	GetByUser(ctx context.Context, cfg *config.Config) []model.URLMapping
-	GetMemory() model.MemoryMap
+// UrlStorer defines Entity operations.
+type UrlStorer interface {
 	Ping() bool
-	SaveBatch(ctx context.Context, batch []model.RequestBatchURLS) error
+	GetURL(urlCode string) (*model.Entity, error)
+	CreateURL(*model.Entity) (*model.Entity, error)
+	GetByUser(ctx context.Context, userUUID uuid.UUID) []model.Entity
+	SaveBatch(ctx context.Context, entities []model.Entity) error
 }
