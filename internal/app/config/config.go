@@ -14,7 +14,7 @@ import (
 type Config struct {
 	ServerAddress string `envconfig:"SERVER_ADDRESS"`
 	BaseURL       string `envconfig:"BASE_URL"`
-	GobFileName   string `envconfig:"FILE_STORAGE_PATH"`
+	DatabaseDSN   string `envconfig:"DATABASE_DSN"`
 }
 
 var (
@@ -25,7 +25,7 @@ var (
 const (
 	defaultServerAddress = "localhost:8080"
 	defaultBaseURL       = "http://localhost:8080"
-	defaultCobFileName   = "urls.gob"
+	defaultDatabaseDSN   = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 )
 
 // NewConfig is a singleton env 	config constructor
@@ -52,7 +52,7 @@ func NewConfig() *Config {
 func bindFlag(config *Config) {
 	flag.StringVar(&config.ServerAddress, "a", defaultServerAddress, "app server address")
 	flag.StringVar(&config.BaseURL, "b", defaultBaseURL, "base url of links")
-	flag.StringVar(&config.GobFileName, "f", defaultCobFileName, "gob file path")
+	flag.StringVar(&config.DatabaseDSN, "d", defaultDatabaseDSN, "database dsn")
 	flag.Parse()
 }
 
@@ -68,8 +68,8 @@ func (c Config) Validate() error {
 	if err != nil {
 		return err
 	}
-	if len(c.GobFileName) == 0 {
-		return errors.New("no gob file")
+	if len(c.DatabaseDSN) == 0 {
+		return errors.New("no database dsn")
 	}
 	return nil
 }

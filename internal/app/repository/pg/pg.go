@@ -11,8 +11,6 @@ const (
 	// Timeout is a Postgres timeout
 	Timeout    = 5
 	notDeleted = "deleted_at is null"
-
-	PgURL = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 )
 
 // DB is a shortcut structure to a Postgres DB
@@ -22,7 +20,7 @@ type DB struct {
 
 // Dial creates new database connection to postgres
 func Dial(cfg *config.Config) (*DB, error) {
-	pgOpts, err := pg.ParseURL(PgURL)
+	pgOpts, err := pg.ParseURL(cfg.DatabaseDSN)
 	if err != nil {
 		return nil, err
 	}
