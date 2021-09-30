@@ -12,9 +12,10 @@ import (
 )
 
 type Config struct {
-	ServerAddress string `envconfig:"SERVER_ADDRESS"`
-	BaseURL       string `envconfig:"BASE_URL"`
-	DatabaseDSN   string `envconfig:"DATABASE_DSN"`
+	ServerAddress    string `envconfig:"SERVER_ADDRESS"`
+	BaseURL          string `envconfig:"BASE_URL"`
+	DatabaseDSN      string `envconfig:"DATABASE_DSN"`
+	PgMigrationsPath string `envconfig:"PG_MIGRATIONS_PATH"`
 }
 
 var (
