@@ -24,9 +24,10 @@ var (
 )
 
 const (
-	defaultServerAddress = "localhost:8080"
-	defaultBaseURL       = "http://localhost:8080"
-	defaultDatabaseDSN   = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+	defaultServerAddress    = "localhost:8080"
+	defaultBaseURL          = "http://localhost:8080"
+	defaultDatabaseDSN      = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+	defaultPgMigrationsPath = "file://internal/app/repository/pg/migrations"
 )
 
 // NewConfig is a singleton env 	config constructor
@@ -54,6 +55,7 @@ func bindFlag(config *Config) {
 	flag.StringVar(&config.ServerAddress, "a", defaultServerAddress, "app server address")
 	flag.StringVar(&config.BaseURL, "b", defaultBaseURL, "base url of links")
 	flag.StringVar(&config.DatabaseDSN, "d", defaultDatabaseDSN, "database dsn")
+	flag.StringVar(&config.PgMigrationsPath, "m", defaultPgMigrationsPath, "database migrations")
 	flag.Parse()
 }
 
@@ -71,6 +73,9 @@ func (c Config) Validate() error {
 	}
 	if len(c.DatabaseDSN) == 0 {
 		return errors.New("no database dsn")
+	}
+	if len(c.PgMigrationsPath) == 0 {
+		return errors.New("no database migrations")
 	}
 	return nil
 }

@@ -23,6 +23,7 @@ const (
 
 func TestNewGetURLHandler(t *testing.T) {
 	const testCode = "testtest"
+
 	type want struct {
 		code        int
 		contentType string
