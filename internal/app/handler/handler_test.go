@@ -62,7 +62,9 @@ func TestNewGetURLHandler(t *testing.T) {
 		Code:     testCode,
 		UserUUID: userUUID,
 	})
-
+	if err != nil {
+		panic(err)
+	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("GET", fmt.Sprintf("/%s", tc.path), nil)
