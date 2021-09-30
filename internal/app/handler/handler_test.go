@@ -187,7 +187,7 @@ func TestNewCreateJSONEntityHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewCreateJsonURLHandler(cfg, repoStorage.EntityPg))
+			h := http.HandlerFunc(NewCreateJSONURLHandler(cfg, repoStorage.EntityPg))
 			h.ServeHTTP(w, request.WithContext(context.WithValue(ctx, model.CookieContextName, testUserUUID)))
 			res := w.Result()
 			defer res.Body.Close()

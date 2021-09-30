@@ -77,7 +77,7 @@ func NewCreateURLHandler(cfg *config.Config, repo repository.URLStorer) http.Han
 
 // NewCreateJsonURLHandler - API JSON version, save entity to the store handler.
 // Get JSON in body, return Result as JSON.
-func NewCreateJsonURLHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
+func NewCreateJSONURLHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		ctx := r.Context()
