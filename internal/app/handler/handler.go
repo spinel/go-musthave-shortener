@@ -15,7 +15,7 @@ import (
 )
 
 // NewPingHandler for check pg db connection
-func NewPingHandler(repo repository.UrlStorer) http.HandlerFunc {
+func NewPingHandler(repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
@@ -25,8 +25,8 @@ func NewPingHandler(repo repository.UrlStorer) http.HandlerFunc {
 	}
 }
 
-// NewCreateUrlHandler - save new entity handler.
-func NewCreateUrlHandler(cfg *config.Config, repo repository.UrlStorer) http.HandlerFunc {
+// NewCreateURLHandler - save new entity handler.
+func NewCreateURLHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		body, err := io.ReadAll(r.Body)
@@ -69,15 +69,15 @@ func NewCreateUrlHandler(cfg *config.Config, repo repository.UrlStorer) http.Han
 			w.WriteHeader(http.StatusConflict)
 		}
 
-		result := pkg.FormatLocalUrl(cfg.BaseURL, urlCode)
+		result := pkg.FormatLocalURL(cfg.BaseURL, urlCode)
 
 		w.Write([]byte(result))
 	}
 }
 
-// NewCreateJsonUrlHandler - API JSON version, save entity to the store handler.
+// NewCreateJsonURLHandler - API JSON version, save entity to the store handler.
 // Get JSON in body, return Result as JSON.
-func NewCreateJsonUrlHandler(cfg *config.Config, repo repository.UrlStorer) http.HandlerFunc {
+func NewCreateJsonURLHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		ctx := r.Context()
@@ -120,15 +120,15 @@ func NewCreateJsonUrlHandler(cfg *config.Config, repo repository.UrlStorer) http
 		}
 
 		result := model.Result{
-			URL: pkg.FormatLocalUrl(cfg.BaseURL, urlCode),
+			URL: pkg.FormatLocalURL(cfg.BaseURL, urlCode),
 		}
 
 		json.NewEncoder(w).Encode(result)
 	}
 }
 
-// NewGetUrlHandler retrive entity from store by code handler.
-func NewGetUrlHandler(repo repository.UrlStorer) http.HandlerFunc {
+// NewGetURLHandler retrive entity from store by code handler.
+func NewGetURLHandler(repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		pathSplit := strings.Split(r.URL.Path, "/")
 
@@ -154,7 +154,7 @@ func NewGetUrlHandler(repo repository.UrlStorer) http.HandlerFunc {
 }
 
 // NewCreateBatchHandler - mass list of urls save.
-func NewCreateBatchHandler(cfg *config.Config, repo repository.UrlStorer) http.HandlerFunc {
+func NewCreateBatchHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		userUUID := getUserUUIDFromCtx(ctx)
@@ -166,16 +166,16 @@ func NewCreateBatchHandler(cfg *config.Config, repo repository.UrlStorer) http.H
 			return
 		}
 
-		var batchUrls []*model.RequestBatchURLS
+		var batchURLs []*model.RequestBatchURLS
 
-		err = json.Unmarshal(body, &batchUrls)
+		err = json.Unmarshal(body, &batchURLs)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		var entities []model.Entity
-		for _, batchUrl := range batchUrls {
+		for _, batchURL := range batchURLs {
 			urlCode, err := pkg.NewGeneratedString()
 			if err != nil {
 				http.Error(w, "code generate error", http.StatusInternalServerError)
@@ -183,12 +183,12 @@ func NewCreateBatchHandler(cfg *config.Config, repo repository.UrlStorer) http.H
 
 			entity := model.Entity{
 				Code:     urlCode,
-				URL:      batchUrl.OriginalURL,
+				URL:      batchURL.OriginalURL,
 				UserUUID: userUUID,
 			}
 			entities = append(entities, entity)
 
-			batchUrl.ShortURL = pkg.FormatLocalUrl(cfg.BaseURL, urlCode)
+			batchURL.ShortURL = pkg.FormatLocalURL(cfg.BaseURL, urlCode)
 		}
 
 		err = repo.SaveBatch(ctx, entities)
@@ -200,12 +200,12 @@ func NewCreateBatchHandler(cfg *config.Config, repo repository.UrlStorer) http.H
 		w.Header().Add("Content-type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
 
-		json.NewEncoder(w).Encode(batchUrls)
+		json.NewEncoder(w).Encode(batchURLs)
 	}
 }
 
-// NewGetUserUrlsHandler retrive current user urls
-func NewGetUserUrlsHandler(cfg *config.Config, repo repository.UrlStorer) http.HandlerFunc {
+// NewGetUserURLsHandler retrive current user urls
+func NewGetUserURLsHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		ctx := r.Context()

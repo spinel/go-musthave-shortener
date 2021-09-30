@@ -10,7 +10,7 @@ import (
 
 type Storage struct {
 	Pg       *pg.DB
-	EntityPg UrlStorer
+	EntityPg URLStorer
 }
 
 // NewStorage is a gob storage builder
@@ -28,7 +28,7 @@ func NewStorage(cfg *config.Config) (*Storage, error) {
 		}
 	}
 
-	entityRepoPg := pg.NewUrlPgRepo(pgDB)
+	entityRepoPg := pg.NewURLPgRepo(pgDB)
 
 	s := &Storage{
 		Pg:       pgDB,

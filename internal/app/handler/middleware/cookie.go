@@ -20,28 +20,28 @@ const (
 
 func CookieHandle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userUUId := uuid.New().String()
+		userUUID := uuid.New().String()
 
-		if cookieUserUUId, err := r.Cookie(model.CookieUserUUIdName); err != nil {
-			// userUUId cookie
-			cookieUserUUId := newCookie(model.CookieUserUUIdName, userUUId)
-			http.SetCookie(w, cookieUserUUId)
+		if cookieUserUUID, err := r.Cookie(model.CookieUserUUIDName); err != nil {
+			// userUUID cookie
+			cookieUserUUID := newCookie(model.CookieUserUUIDName, userUUID)
+			http.SetCookie(w, cookieUserUUID)
 
 			// signature cookie
-			cookieSignature := newCookie(model.CookieSignatureName, stringToHmacSha256(userUUId))
+			cookieSignature := newCookie(model.CookieSignatureName, stringToHmacSha256(userUUID))
 			http.SetCookie(w, cookieSignature)
 		} else {
-			userUUId = cookieUserUUId.Value
+			userUUID = cookieUserUUID.Value
 			cookieSignature, _ := r.Cookie(model.CookieSignatureName)
 			signature := cookieSignature.Value
 
-			if strings.Compare(stringToHmacSha256(userUUId), signature) != 0 {
+			if strings.Compare(stringToHmacSha256(userUUID), signature) != 0 {
 				w.WriteHeader(http.StatusForbidden)
 				return
 			}
 		}
 
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), model.CookieContextName, userUUId)))
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), model.CookieContextName, userUUID)))
 	})
 }
 

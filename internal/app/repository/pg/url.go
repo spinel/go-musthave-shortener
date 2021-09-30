@@ -8,23 +8,23 @@ import (
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 )
 
-type UrlPgRepo struct {
+type URLPgRepo struct {
 	db *DB
 }
 
-// NewUrlPgRepo is a UrlPgRepo builder.
-func NewUrlPgRepo(db *DB) *UrlPgRepo {
-	return &UrlPgRepo{db: db}
+// NewURLPgRepo is a URLPgRepo builder.
+func NewURLPgRepo(db *DB) *URLPgRepo {
+	return &URLPgRepo{db: db}
 }
 
 // Ping checks db connection.
-func (urlRepo *UrlPgRepo) Ping() bool {
+func (urlRepo *URLPgRepo) Ping() bool {
 	_, err := urlRepo.db.Exec("SELECT 1")
 	return err == nil
 }
 
 // CreateURL save entity to db.
-func (urlRepo *UrlPgRepo) CreateURL(entity *model.Entity) (*model.Entity, error) {
+func (urlRepo *URLPgRepo) CreateURL(entity *model.Entity) (*model.Entity, error) {
 	result, err := urlRepo.db.Model(entity).
 		OnConflict("(url) DO NOTHING").
 		Insert()
@@ -34,7 +34,7 @@ func (urlRepo *UrlPgRepo) CreateURL(entity *model.Entity) (*model.Entity, error)
 	}
 
 	if result.RowsAffected() == 0 {
-		existEntity, err := urlRepo.getByUrl(entity.URL)
+		existEntity, err := urlRepo.getByURL(entity.URL)
 		if err != nil {
 			return nil, err
 		}
@@ -46,7 +46,7 @@ func (urlRepo *UrlPgRepo) CreateURL(entity *model.Entity) (*model.Entity, error)
 }
 
 // GetURL retrives entity by code.
-func (urlRepo *UrlPgRepo) GetURL(urlCode string) (*model.Entity, error) {
+func (urlRepo *URLPgRepo) GetURL(urlCode string) (*model.Entity, error) {
 	entity := &model.Entity{}
 	err := urlRepo.db.Model(entity).
 		Where("code = ?", urlCode).
@@ -62,7 +62,7 @@ func (urlRepo *UrlPgRepo) GetURL(urlCode string) (*model.Entity, error) {
 }
 
 // GetByUser retrive entities by user UUID.
-func (urlRepo *UrlPgRepo) GetByUser(ctx context.Context, userUUID uuid.UUID) []model.Entity {
+func (urlRepo *URLPgRepo) GetByUser(ctx context.Context, userUUID uuid.UUID) []model.Entity {
 	var entityPool []model.Entity
 	err := urlRepo.db.Model(&entityPool).
 		Where("user_uuid = ?", userUUID.String()).
@@ -76,7 +76,7 @@ func (urlRepo *UrlPgRepo) GetByUser(ctx context.Context, userUUID uuid.UUID) []m
 }
 
 // SaveBatch uses to save array of entities.
-func (urlRepo *UrlPgRepo) SaveBatch(ctx context.Context, entities []model.Entity) error {
+func (urlRepo *URLPgRepo) SaveBatch(ctx context.Context, entities []model.Entity) error {
 	tx, err := urlRepo.db.Begin()
 	if err != nil {
 		return err
@@ -100,8 +100,8 @@ func (urlRepo *UrlPgRepo) SaveBatch(ctx context.Context, entities []model.Entity
 	return nil
 }
 
-// getByUrl retrives entity by url.
-func (urlRepo *UrlPgRepo) getByUrl(url string) (*model.Entity, error) {
+// getByURL retrives entity by url.
+func (urlRepo *URLPgRepo) getByURL(url string) (*model.Entity, error) {
 	entity := &model.Entity{}
 	err := urlRepo.db.Model(entity).
 		Where("url = ?", url).

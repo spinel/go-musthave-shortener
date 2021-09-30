@@ -1,8 +1,8 @@
 package model
 
 const (
-	CookieUserUUIdName  = "userUUId"
+	CookieUserUUIDName  = "userUUId"
 	CookieSignatureName = "signature"
 	CookieExpireDays    = 30
-	CookieContextName   = "userUUId"
+	CookieContextName   = "userUUID"
 )

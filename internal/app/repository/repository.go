@@ -8,7 +8,7 @@ import (
 )
 
 // UrlStorer defines Entity operations.
-type UrlStorer interface {
+type URLStorer interface {
 	Ping() bool
 	GetURL(urlCode string) (*model.Entity, error)
 	CreateURL(*model.Entity) (*model.Entity, error)

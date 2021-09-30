@@ -21,7 +21,7 @@ const (
 	testUserUUID = "7c03d351-d0e4-41d0-a837-6df16ced19d4"
 )
 
-func TestNewGetUrlHandler(t *testing.T) {
+func TestNewGetURLHandler(t *testing.T) {
 	const testCode = "testtest"
 	type want struct {
 		code        int
@@ -67,7 +67,7 @@ func TestNewGetUrlHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("GET", fmt.Sprintf("/%s", tc.path), nil)
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewGetUrlHandler(repoStorage.EntityPg))
+			h := http.HandlerFunc(NewGetURLHandler(repoStorage.EntityPg))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()
@@ -77,7 +77,7 @@ func TestNewGetUrlHandler(t *testing.T) {
 	}
 }
 
-func TestNewCreateUrlHandler(t *testing.T) {
+func TestNewCreateURLHandler(t *testing.T) {
 	type want struct {
 		code        int
 		contentType string
@@ -122,7 +122,7 @@ func TestNewCreateUrlHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewCreateUrlHandler(cfg, repoStorage.EntityPg))
+			h := http.HandlerFunc(NewCreateURLHandler(cfg, repoStorage.EntityPg))
 			h.ServeHTTP(w, request.WithContext(context.WithValue(ctx, model.CookieContextName, testUserUUID)))
 
 			res := w.Result()
@@ -185,7 +185,7 @@ func TestNewCreateJSONEntityHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewCreateJsonUrlHandler(cfg, repoStorage.EntityPg))
+			h := http.HandlerFunc(NewCreateJsonURLHandler(cfg, repoStorage.EntityPg))
 			h.ServeHTTP(w, request.WithContext(context.WithValue(ctx, model.CookieContextName, testUserUUID)))
 			res := w.Result()
 			defer res.Body.Close()
