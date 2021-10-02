@@ -17,9 +17,10 @@ import (
 
 func CookieHandle(cfg *config.Config, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userUUID := uuid.New().String()
+		var userUUID string
 
 		if cookieUserUUID, err := r.Cookie(model.CookieUserUUIDName); err != nil {
+			userUUID := uuid.New().String()
 			// userUUID cookie
 			cookieUserUUID := newCookie(model.CookieUserUUIDName, userUUID)
 			http.SetCookie(w, cookieUserUUID)
