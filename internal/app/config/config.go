@@ -16,6 +16,7 @@ type Config struct {
 	BaseURL          string `envconfig:"BASE_URL"`
 	DatabaseDSN      string `envconfig:"DATABASE_DSN"`
 	PgMigrationsPath string `envconfig:"PG_MIGRATIONS_PATH"`
+	CookieSecretKey  string `envconfig:"COOKIE_SECRET_KEY"`
 }
 
 var (

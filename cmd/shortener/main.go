@@ -26,7 +26,7 @@ func main() {
 
 	server := &http.Server{
 		Addr: cfg.ServerAddress,
-		Handler: middleware.CookieHandle(
+		Handler: middleware.CookieHandle(cfg,
 			middleware.GzipHandle(
 				router.NewRouter(cfg, repo.EntityPg),
 			),

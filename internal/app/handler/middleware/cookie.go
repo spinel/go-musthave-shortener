@@ -11,14 +11,11 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 )
 
-const (
-	secretKey = "102703av0grv8n4l"
-)
-
-func CookieHandle(next http.Handler) http.Handler {
+func CookieHandle(cfg *config.Config, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userUUID := uuid.New().String()
 
@@ -28,14 +25,14 @@ func CookieHandle(next http.Handler) http.Handler {
 			http.SetCookie(w, cookieUserUUID)
 
 			// signature cookie
-			cookieSignature := newCookie(model.CookieSignatureName, stringToHmacSha256(userUUID))
+			cookieSignature := newCookie(model.CookieSignatureName, stringToHmacSha256(cfg, userUUID))
 			http.SetCookie(w, cookieSignature)
 		} else {
 			userUUID = cookieUserUUID.Value
 			cookieSignature, _ := r.Cookie(model.CookieSignatureName)
 			signature := cookieSignature.Value
 
-			if strings.Compare(stringToHmacSha256(userUUID), signature) != 0 {
+			if strings.Compare(stringToHmacSha256(cfg, userUUID), signature) != 0 {
 				w.WriteHeader(http.StatusForbidden)
 				return
 			}
@@ -45,8 +42,8 @@ func CookieHandle(next http.Handler) http.Handler {
 	})
 }
 
-func stringToHmacSha256(data string) string {
-	h := hmac.New(sha256.New, []byte(secretKey))
+func stringToHmacSha256(cfg *config.Config, data string) string {
+	h := hmac.New(sha256.New, []byte(cfg.CookieSecretKey))
 
 	// Write Data
 	h.Write([]byte(data))
