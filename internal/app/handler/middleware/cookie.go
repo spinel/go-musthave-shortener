@@ -15,7 +15,7 @@ import (
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 )
 
-func CookieHandle(cfg *config.Config, next http.Handler) http.Handler {
+func CookieHandle(cfg config.Config, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var userUUID string
 
@@ -43,7 +43,7 @@ func CookieHandle(cfg *config.Config, next http.Handler) http.Handler {
 	})
 }
 
-func stringToHmacSha256(cfg *config.Config, data string) string {
+func stringToHmacSha256(cfg config.Config, data string) string {
 	h := hmac.New(sha256.New, []byte(cfg.CookieSecretKey))
 
 	// Write Data

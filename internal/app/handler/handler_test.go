@@ -50,6 +50,7 @@ func TestNewGetURLHandler(t *testing.T) {
 			},
 		},
 	}
+	ctx := context.Background()
 
 	cfg := config.NewConfig()
 	repoStorage, err := repository.NewStorage(cfg)
@@ -58,7 +59,7 @@ func TestNewGetURLHandler(t *testing.T) {
 	}
 	userUUID, _ := uuid.Parse(testUserUUID)
 
-	_, err = repoStorage.EntityPg.CreateURL(&model.Entity{
+	_, err = repoStorage.EntityPg.CreateURL(ctx, &model.Entity{
 		URL:      testURL,
 		Code:     testCode,
 		UserUUID: userUUID,
@@ -70,7 +71,7 @@ func TestNewGetURLHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			request := httptest.NewRequest("GET", fmt.Sprintf("/%s", tc.path), nil)
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(NewGetURLHandler(repoStorage.EntityPg))
+			h := http.HandlerFunc(NewGetURLHandler(cfg, repoStorage.EntityPg))
 			h.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()

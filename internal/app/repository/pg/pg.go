@@ -19,7 +19,7 @@ type DB struct {
 }
 
 // Dial creates new database connection to postgres
-func Dial(cfg *config.Config) (*DB, error) {
+func Dial(cfg config.Config) (*DB, error) {
 	pgOpts, err := pg.ParseURL(cfg.DatabaseDSN)
 	if err != nil {
 		return nil, err

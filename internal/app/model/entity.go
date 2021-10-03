@@ -10,8 +10,6 @@ import (
 )
 
 // Entity is stored URL object.
-// TODO: use net/url enstead of string.
-// Current struct used as value of memory map.
 type Entity struct {
 	ID        int        `json:"id" pg:"id,notnull,pk"`
 	Code      string     `json:"code" pg:"code"`
@@ -36,7 +34,7 @@ func (e *Entity) BeforeInsert(ctx context.Context) (context.Context, error) {
 }
 
 // ToURLMapping convert Entity to URLMapping struct.
-func (e *Entity) ToURLMapping(cfg *config.Config) URLMapping {
+func (e *Entity) ToURLMapping(cfg config.Config) URLMapping {
 	return URLMapping{
 		OriginalURL: e.URL,
 		ShortURL:    fmt.Sprintf("%s/%s", cfg.BaseURL, e.Code),

@@ -10,8 +10,8 @@ import (
 // UrlStorer defines Entity operations.
 type URLStorer interface {
 	Ping() bool
-	GetURL(urlCode string) (*model.Entity, error)
-	CreateURL(*model.Entity) (*model.Entity, error)
-	GetByUser(ctx context.Context, userUUID uuid.UUID) []model.Entity
+	GetURL(ctx context.Context, urlCode string) (*model.Entity, error)
+	CreateURL(ctx context.Context, entity *model.Entity) (*model.Entity, error)
+	GetByUser(ctx context.Context, userUUID uuid.UUID) ([]model.Entity, error)
 	SaveBatch(ctx context.Context, entities []model.Entity) error
 }

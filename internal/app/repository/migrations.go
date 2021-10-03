@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"fmt"
-
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/pkg/errors"
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
@@ -12,9 +10,8 @@ import (
 )
 
 // runPgMigrations runs Postgres migrations
-func runPgMigrations(cfg *config.Config) error {
+func runPgMigrations(cfg config.Config) error {
 	if cfg.PgMigrationsPath == "" {
-		fmt.Println("ok\n")
 		return nil
 	}
 	if cfg.DatabaseDSN == "" {

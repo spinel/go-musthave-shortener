@@ -26,9 +26,10 @@ func NewPingHandler(repo repository.URLStorer) http.HandlerFunc {
 }
 
 // NewCreateURLHandler - save new entity handler.
-func NewCreateURLHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
+func NewCreateURLHandler(cfg config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "wrong body", http.StatusBadRequest)
@@ -56,7 +57,7 @@ func NewCreateURLHandler(cfg *config.Config, repo repository.URLStorer) http.Han
 			UserUUID: userUUID,
 		}
 
-		existEntity, err := repo.CreateURL(entity)
+		existEntity, err := repo.CreateURL(ctx, entity)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -77,11 +78,11 @@ func NewCreateURLHandler(cfg *config.Config, repo repository.URLStorer) http.Han
 
 // NewCreateJsonURLHandler - API JSON version, save entity to the store handler.
 // Get JSON in body, return Result as JSON.
-func NewCreateJSONURLHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
+func NewCreateJSONURLHandler(cfg config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		body, err := io.ReadAll(r.Body)
 		ctx := r.Context()
 
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 
@@ -106,7 +107,7 @@ func NewCreateJSONURLHandler(cfg *config.Config, repo repository.URLStorer) http
 		entity.UserUUID = userUUID
 		entity.Code = urlCode
 
-		existEntity, err := repo.CreateURL(entity)
+		existEntity, err := repo.CreateURL(ctx, entity)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -128,8 +129,9 @@ func NewCreateJSONURLHandler(cfg *config.Config, repo repository.URLStorer) http
 }
 
 // NewGetURLHandler retrive entity from store by code handler.
-func NewGetURLHandler(repo repository.URLStorer) http.HandlerFunc {
+func NewGetURLHandler(cfg config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		pathSplit := strings.Split(r.URL.Path, "/")
 
 		if len(pathSplit) != 2 {
@@ -139,13 +141,14 @@ func NewGetURLHandler(repo repository.URLStorer) http.HandlerFunc {
 		}
 		urlCode := pathSplit[1]
 
-		entity, err := repo.GetURL(urlCode)
-		if entity == nil {
-			http.Error(w, "entity not found", http.StatusNotFound)
-			return
-		}
+		entity, err := repo.GetURL(ctx, urlCode)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if entity == nil {
+			http.Error(w, "entity not found", http.StatusNotFound)
 			return
 		}
 
@@ -154,7 +157,7 @@ func NewGetURLHandler(repo repository.URLStorer) http.HandlerFunc {
 }
 
 // NewCreateBatchHandler - mass list of urls save.
-func NewCreateBatchHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
+func NewCreateBatchHandler(cfg config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		userUUID := getUserUUIDFromCtx(ctx)
@@ -205,13 +208,12 @@ func NewCreateBatchHandler(cfg *config.Config, repo repository.URLStorer) http.H
 }
 
 // NewGetUserURLsHandler retrive current user urls
-func NewGetUserURLsHandler(cfg *config.Config, repo repository.URLStorer) http.HandlerFunc {
+func NewGetUserURLsHandler(cfg config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		ctx := r.Context()
 		userUUID := getUserUUIDFromCtx(ctx)
 
-		entities := repo.GetByUser(ctx, userUUID)
+		entities, _ := repo.GetByUser(ctx, userUUID)
 
 		// convert Entity to URLMapping
 		var urlMappingPool []model.URLMapping
