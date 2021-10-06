@@ -28,7 +28,7 @@ const (
 	defaultServerAddress    = "localhost:8080"
 	defaultBaseURL          = "http://localhost:8080"
 	defaultDatabaseDSN      = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
-	defaultPgMigrationsPath = "file://internal/app/repository/pg/migrations"
+	defaultPgMigrationsPath = "file://../../internal/app/repository/pg/migrations"
 )
 
 // NewConfig is a singleton env 	config constructor

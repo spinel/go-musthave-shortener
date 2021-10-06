@@ -23,9 +23,9 @@ func NewStorage(cfg config.Config) (*Storage, error) {
 	// Run Postgres migrations
 	if pgDB != nil {
 		log.Println("Running PostgreSQL migrations...")
-		//		if err := runPgMigrations(cfg); err != nil {
-		//			return nil, errors.Wrap(err, "runPgMigrations failed")
-		//		}
+		if err := runPgMigrations(cfg); err != nil {
+			return nil, errors.Wrap(err, "runPgMigrations failed")
+		}
 	}
 
 	entityRepoPg := pg.NewURLPgRepo(pgDB)
