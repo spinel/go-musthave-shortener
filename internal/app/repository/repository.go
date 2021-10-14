@@ -14,4 +14,5 @@ type URLStorer interface {
 	CreateURL(ctx context.Context, entity *model.Entity) (*model.Entity, error)
 	GetByUser(ctx context.Context, userUUID uuid.UUID) ([]model.Entity, error)
 	SaveBatch(ctx context.Context, entities []model.Entity) error
+	DeleteBatch(ctx context.Context, entities []model.Entity) error
 }

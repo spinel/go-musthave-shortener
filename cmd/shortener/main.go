@@ -9,11 +9,14 @@ import (
 
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/handler/middleware"
+	"github.com/spinel/go-musthave-shortener/internal/app/model"
+	"github.com/spinel/go-musthave-shortener/internal/app/pkg"
 	"github.com/spinel/go-musthave-shortener/internal/app/repository"
 	"github.com/spinel/go-musthave-shortener/internal/app/router"
 )
 
 func main() {
+	ctx := context.Background()
 	cfg := config.NewConfig()
 	if err := cfg.Validate(); err != nil {
 		panic(err)
@@ -24,11 +27,14 @@ func main() {
 		panic(err)
 	}
 
+	workerCh := make(chan *model.Entity)
+	go pkg.NewWorkerBatchDelete(ctx, cfg, repo.EntityPg, workerCh)
+
 	server := &http.Server{
 		Addr: cfg.ServerAddress,
 		Handler: middleware.CookieHandle(cfg,
 			middleware.GzipHandle(
-				router.NewRouter(cfg, repo.EntityPg),
+				router.NewRouter(cfg, repo.EntityPg, workerCh),
 			),
 		),
 	}
@@ -48,7 +54,7 @@ func main() {
 	// Waiting for SIGINT (pkill -2)
 	<-stop
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {

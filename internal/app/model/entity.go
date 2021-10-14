@@ -58,3 +58,8 @@ type RequestBatchURLS struct {
 	OriginalURL   string `json:"original_url"`
 	ShortURL      string `json:"short_url"`
 }
+
+type BatchUserCode struct {
+	UserUUID uuid.UUID
+	Code     string
+}

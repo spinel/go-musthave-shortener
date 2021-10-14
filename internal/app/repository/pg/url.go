@@ -135,6 +135,40 @@ func (urlRepo *URLPgRepo) SaveBatch(ctx context.Context, objPool []model.Entity)
 	return nil
 }
 
+// DeleteBatch uses to remove array of entities.
+func (urlRepo *URLPgRepo) DeleteBatch(ctx context.Context, objPool []model.Entity) error {
+	var dbObjPool []schema.Entity
+	for _, obj := range objPool {
+		dbObj := schema.NewEntityFromCanonical(obj)
+		dbObjPool = append(dbObjPool, dbObj)
+	}
+
+	tx, err := urlRepo.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// prepare each object to commit.
+	for _, dbObj := range dbObjPool {
+		_, err := tx.Model(&dbObj).
+			WherePK().
+			//Where("user_uuid = ?", userUUID.String()).
+			Where(notDeleted).
+			Update()
+		if err != nil {
+			return err
+		}
+	}
+
+	// commit on success.
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // getByURL retrives entity by url.
 func (urlRepo *URLPgRepo) getByURL(url string) (*schema.Entity, error) {
 	dbObj := &schema.Entity{}
