@@ -27,7 +27,7 @@ func main() {
 		panic(err)
 	}
 
-	workerCh := make(chan *model.Entity)
+	workerCh := make(chan *model.BatchUserCode)
 	go pkg.NewWorkerBatchDelete(ctx, cfg, repo.EntityPg, workerCh)
 
 	server := &http.Server{

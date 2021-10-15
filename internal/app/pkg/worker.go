@@ -5,13 +5,14 @@ import (
 	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 	"github.com/spinel/go-musthave-shortener/internal/app/repository"
 )
 
-func NewWorkerBatchDelete(ctx context.Context, cfg config.Config, repo repository.URLStorer, ch chan *model.Entity) {
-	var batchQueue []*model.Entity
+func NewWorkerBatchDelete(ctx context.Context, cfg config.Config, repo repository.URLStorer, ch chan *model.BatchUserCode) {
+	var batchQueue []*model.BatchUserCode
 	var batchQueueSize = cfg.BatchQueueSize
 	var batchItemsCounter int
 
@@ -20,9 +21,16 @@ func NewWorkerBatchDelete(ctx context.Context, cfg config.Config, repo repositor
 		if batchItemsCounter >= batchQueueSize {
 			var entities []model.Entity
 			now := time.Now()
-			for _, entity := range batchQueue {
-				entity.DeletedAt = &now
-				entities = append(entities, *entity)
+			for _, queueItem := range batchQueue {
+
+				// check if code created by current user.
+				entity := checkUserCode(ctx, repo, queueItem.Code, queueItem.UserUUID)
+
+				// if entity exists, then remove.
+				if entity != nil {
+					entity.DeletedAt = &now
+					entities = append(entities, *entity)
+				}
 			}
 
 			err := repo.DeleteBatch(ctx, entities)
@@ -35,4 +43,12 @@ func NewWorkerBatchDelete(ctx context.Context, cfg config.Config, repo repositor
 		}
 		batchItemsCounter++
 	}
+}
+
+func checkUserCode(ctx context.Context, repo repository.URLStorer, code string, userUUID uuid.UUID) *model.Entity {
+	entity, _ := repo.GetURL(ctx, code)
+	if entity != nil && entity.UserUUID == userUUID {
+		return entity
+	}
+	return nil
 }

@@ -9,7 +9,7 @@ import (
 )
 
 // Router for an app.
-func NewRouter(cfg config.Config, repo repository.URLStorer, ch chan *model.Entity) *mux.Router {
+func NewRouter(cfg config.Config, repo repository.URLStorer, ch chan *model.BatchUserCode) *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", handler.NewCreateURLHandler(cfg, repo))
 	r.HandleFunc("/api/shorten", handler.NewCreateJSONURLHandler(cfg, repo))

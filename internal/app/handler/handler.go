@@ -156,7 +156,7 @@ func NewGetURLHandler(cfg config.Config, repo repository.URLStorer) http.Handler
 	}
 }
 
-func NewDeleteBatchHandler(cfg config.Config, repo repository.URLStorer, ch chan *model.Entity) http.HandlerFunc {
+func NewDeleteBatchHandler(cfg config.Config, repo repository.URLStorer, ch chan *model.BatchUserCode) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		body, err := io.ReadAll(r.Body)
@@ -184,16 +184,15 @@ func NewDeleteBatchHandler(cfg config.Config, repo repository.URLStorer, ch chan
 
 		userUUID := getUserUUIDFromCtx(ctx)
 
-		// enqueue urls codes.
+		// enqueue of user`s codes.
 		go func() {
 			for _, code := range codes {
-				// check if code created by current user.
-				entity := checkUserCode(ctx, repo, code, userUUID)
-
-				// if entity exists, add to queue chan.
-				if entity != nil {
-					ch <- entity
+				batchUserCode := &model.BatchUserCode{
+					Code:     code,
+					UserUUID: userUUID,
 				}
+
+				ch <- batchUserCode
 			}
 		}()
 
@@ -282,12 +281,4 @@ func getUserUUIDFromCtx(ctx context.Context) uuid.UUID {
 	userUUIDString := ctx.Value(model.CookieContextName).(string)
 	userUUID, _ := uuid.Parse(userUUIDString)
 	return userUUID
-}
-
-func checkUserCode(ctx context.Context, repo repository.URLStorer, code string, userUUID uuid.UUID) *model.Entity {
-	entity, _ := repo.GetURL(ctx, code)
-	if entity != nil && entity.UserUUID == userUUID {
-		return entity
-	}
-	return nil
 }
