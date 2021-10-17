@@ -15,4 +15,5 @@ type URLStorer interface {
 	GetByUser(ctx context.Context, userUUID uuid.UUID) ([]model.Entity, error)
 	SaveBatch(ctx context.Context, entities []model.Entity) error
 	DeleteBatch(ctx context.Context, entities []model.Entity) error
+	EnqueueDelete(codes []string, userUUID uuid.UUID) error
 }

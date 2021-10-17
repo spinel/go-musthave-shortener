@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,8 +10,6 @@ import (
 
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/handler/middleware"
-	"github.com/spinel/go-musthave-shortener/internal/app/model"
-	"github.com/spinel/go-musthave-shortener/internal/app/pkg"
 	"github.com/spinel/go-musthave-shortener/internal/app/repository"
 	"github.com/spinel/go-musthave-shortener/internal/app/router"
 )
@@ -19,29 +18,26 @@ func main() {
 	ctx := context.Background()
 	cfg := config.NewConfig()
 	if err := cfg.Validate(); err != nil {
-		panic(err)
+		log.Fatal("config validation failed: ", err)
 	}
 
 	repo, err := repository.NewStorage(cfg)
 	if err != nil {
-		panic(err)
+		log.Fatal("storage init failed:", err)
 	}
-
-	workerCh := make(chan *model.BatchUserCode)
-	go pkg.NewWorkerBatchDelete(ctx, cfg, repo.EntityPg, workerCh)
 
 	server := &http.Server{
 		Addr: cfg.ServerAddress,
 		Handler: middleware.CookieHandle(cfg,
 			middleware.GzipHandle(
-				router.NewRouter(cfg, repo.EntityPg, workerCh),
+				router.NewRouter(cfg, repo.EntityPg),
 			),
 		),
 	}
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
-			panic(err)
+			log.Fatal("server start failed:", err)
 		}
 	}()
 
@@ -58,6 +54,6 @@ func main() {
 
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
-		panic(err)
+		log.Fatal("graceful shutdown failed: ", err)
 	}
 }

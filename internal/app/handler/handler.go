@@ -156,7 +156,7 @@ func NewGetURLHandler(cfg config.Config, repo repository.URLStorer) http.Handler
 	}
 }
 
-func NewDeleteBatchHandler(cfg config.Config, repo repository.URLStorer, ch chan *model.BatchUserCode) http.HandlerFunc {
+func NewDeleteBatchHandler(cfg config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		body, err := io.ReadAll(r.Body)
@@ -174,27 +174,18 @@ func NewDeleteBatchHandler(cfg config.Config, repo repository.URLStorer, ch chan
 		}
 
 		var codes []string
-		err = json.Unmarshal(body, &codes)
-
-		if err != nil {
+		if err := json.Unmarshal(body, &codes); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 
 			return
 		}
 
 		userUUID := getUserUUIDFromCtx(ctx)
+		if err := repo.EnqueueDelete(codes, userUUID); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 
-		// enqueue of user`s codes.
-		go func() {
-			for _, code := range codes {
-				batchUserCode := &model.BatchUserCode{
-					Code:     code,
-					UserUUID: userUUID,
-				}
-
-				ch <- batchUserCode
-			}
-		}()
+			return
+		}
 
 		w.WriteHeader(http.StatusAccepted)
 	}

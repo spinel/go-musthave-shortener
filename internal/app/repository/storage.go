@@ -28,7 +28,7 @@ func NewStorage(cfg config.Config) (*Storage, error) {
 		}
 	}
 
-	entityRepoPg := pg.NewURLPgRepo(pgDB)
+	entityRepoPg := pg.NewURLPgRepo(cfg, pgDB)
 
 	s := &Storage{
 		Pg:       pgDB,

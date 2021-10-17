@@ -29,7 +29,7 @@ const (
 	defaultServerAddress    = "localhost:8080"
 	defaultBaseURL          = "http://localhost:8080"
 	defaultDatabaseDSN      = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
-	defaultPgMigrationsPath = "file://../../internal/app/repository/pg/migrations"
+	defaultPgMigrationsPath = "file://internal/app/repository/pg/migrations"
 	defaultBatchQueueSize   = 10
 )
 
@@ -41,17 +41,37 @@ func NewConfig() Config {
 			log.Fatal(err)
 		}
 
-		// bind flags or default
-		// values if env is empty
+		// bind flags
 		if (Config{}) == config {
 			bindFlag(config)
 		}
+
+		// set default values.
+		setDefault(&config)
 
 		// show command line config
 		fmt.Println(config)
 	})
 
 	return config
+}
+
+func setDefault(c *Config) {
+	if c.ServerAddress == "" {
+		c.ServerAddress = defaultServerAddress
+	}
+	if c.BaseURL == "" {
+		c.BaseURL = defaultBaseURL
+	}
+	if c.DatabaseDSN == "" {
+		c.DatabaseDSN = defaultDatabaseDSN
+	}
+	if c.PgMigrationsPath == "" {
+		c.PgMigrationsPath = defaultPgMigrationsPath
+	}
+	if c.BatchQueueSize == 0 {
+		c.BatchQueueSize = defaultBatchQueueSize
+	}
 }
 
 func bindFlag(config Config) {

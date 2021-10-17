@@ -3,20 +3,34 @@ package pg
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/go-pg/pg"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
+	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
+
 	"github.com/spinel/go-musthave-shortener/internal/app/repository/pg/schema"
 )
 
 type URLPgRepo struct {
-	db *DB
+	db               *DB
+	WorkerDeleteChan chan model.BatchUserCode
 }
 
 // NewURLPgRepo is a URLPgRepo builder.
-func NewURLPgRepo(db *DB) *URLPgRepo {
-	return &URLPgRepo{db: db}
+func NewURLPgRepo(cfg config.Config, db *DB) *URLPgRepo {
+	workerDeleteChan := make(chan model.BatchUserCode)
+
+	urlPgRepo := &URLPgRepo{
+		db:               db,
+		WorkerDeleteChan: workerDeleteChan,
+	}
+	urlPgRepo.batchDeleteWorker(cfg.BatchQueueSize)
+
+	return urlPgRepo
 }
 
 // Ping checks db connection.
@@ -114,7 +128,7 @@ func (urlRepo *URLPgRepo) SaveBatch(ctx context.Context, objPool []model.Entity)
 
 	tx, err := urlRepo.db.Begin()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "repo.SaveBatch")
 	}
 	defer tx.Rollback()
 
@@ -123,13 +137,13 @@ func (urlRepo *URLPgRepo) SaveBatch(ctx context.Context, objPool []model.Entity)
 		_, err := tx.Model(&dbObj).
 			Insert()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "repo.SaveBatch")
 		}
 	}
 
 	// commit on success.
 	if err := tx.Commit(); err != nil {
-		return err
+		return errors.Wrap(err, "repo.SaveBatch")
 	}
 
 	return nil
@@ -145,7 +159,7 @@ func (urlRepo *URLPgRepo) DeleteBatch(ctx context.Context, objPool []model.Entit
 
 	tx, err := urlRepo.db.Begin()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "repo.DeleteBatch")
 	}
 	defer tx.Rollback()
 
@@ -157,13 +171,13 @@ func (urlRepo *URLPgRepo) DeleteBatch(ctx context.Context, objPool []model.Entit
 			Where(notDeleted).
 			Update()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "repo.DeleteBatch")
 		}
 	}
 
 	// commit on success.
 	if err := tx.Commit(); err != nil {
-		return err
+		return errors.Wrap(err, "repo.DeleteBatch")
 	}
 
 	return nil
@@ -186,4 +200,64 @@ func (urlRepo *URLPgRepo) getByURL(url string) (*schema.Entity, error) {
 	}
 
 	return dbObj, nil
+}
+
+//EnqueueDelete uses to add batch codes to the queue chan.
+func (urlRepo *URLPgRepo) EnqueueDelete(codes []string, userUUID uuid.UUID) error {
+
+	// enqueue user codes.
+	go func() {
+		for _, code := range codes {
+			batchUserCode := model.BatchUserCode{
+				Code:     code,
+				UserUUID: userUUID,
+			}
+
+			urlRepo.WorkerDeleteChan <- batchUserCode
+		}
+	}()
+
+	return nil
+}
+
+// batchDeleteWorker add new url codes to the queue chan
+// until batchQueueSize, than delete items in the queue.
+func (urlRepo *URLPgRepo) batchDeleteWorker(batchQueueSize int) {
+	go func() {
+		var batchQueue []model.BatchUserCode
+		ctx := context.Background()
+
+		for itemQueue := range urlRepo.WorkerDeleteChan {
+			if len(batchQueue) >= batchQueueSize {
+				var entities []model.Entity
+				now := time.Now()
+				for _, queueItem := range batchQueue {
+
+					// check if code created by current user.
+					entity := urlRepo.checkUserCode(ctx, queueItem.Code, queueItem.UserUUID)
+
+					// if entity exists, then remove.
+					if entity != nil {
+						entity.DeletedAt = &now
+						entities = append(entities, *entity)
+					}
+				}
+
+				if err := urlRepo.DeleteBatch(ctx, entities); err != nil {
+					log.Println(err)
+				}
+
+				batchQueue = batchQueue[:0]
+			}
+			batchQueue = append(batchQueue, itemQueue)
+		}
+	}()
+}
+
+func (urlRepo *URLPgRepo) checkUserCode(ctx context.Context, code string, userUUID uuid.UUID) *model.Entity {
+	entity, _ := urlRepo.GetURL(ctx, code)
+	if entity != nil && entity.UserUUID == userUUID {
+		return entity
+	}
+	return nil
 }
