@@ -20,6 +20,9 @@ type userUUID string
 func toUserUUID(s string) userUUID {
 	return userUUID(s)
 }
+func userUUIDtoString(u userUUID) string {
+	return string(u)
+}
 
 func CookieHandle(cfg config.Config, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -39,13 +42,15 @@ func CookieHandle(cfg config.Config, next http.Handler) http.Handler {
 			cookieSignature, _ := r.Cookie(model.CookieSignatureName)
 			signature := cookieSignature.Value
 
-			if strings.Compare(stringToHmacSha256(cfg, string(userUUID)), signature) != 0 {
+			if strings.Compare(stringToHmacSha256(cfg, userUUIDtoString(userUUID)), signature) != 0 {
 				w.WriteHeader(http.StatusForbidden)
 				return
 			}
 		}
 
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), model.CookieContextName, userUUID)))
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(),
+			toUserUUID(model.CookieContextName),
+			userUUID)))
 	})
 }
 
