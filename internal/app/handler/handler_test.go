@@ -21,6 +21,12 @@ const (
 	testUserUUID = "7c03d351-d0e4-41d0-a837-6df16ced19d4"
 )
 
+type contextKey string
+
+func toContextKey(s string) contextKey {
+	return contextKey(s)
+}
+
 func TestNewGetURLHandler(t *testing.T) {
 	const testCode = "testtest"
 
@@ -127,7 +133,7 @@ func TestNewCreateURLHandler(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(NewCreateURLHandler(cfg, repoStorage.EntityPg))
-			h.ServeHTTP(w, request.WithContext(context.WithValue(ctx, model.CookieContextName, testUserUUID)))
+			h.ServeHTTP(w, request.WithContext(context.WithValue(ctx, toContextKey(model.CookieContextName), testUserUUID)))
 
 			res := w.Result()
 			defer res.Body.Close()
@@ -190,7 +196,7 @@ func TestNewCreateJSONEntityHandler(t *testing.T) {
 			request := httptest.NewRequest("POST", "/", strings.NewReader(tc.payload))
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(NewCreateJSONURLHandler(cfg, repoStorage.EntityPg))
-			h.ServeHTTP(w, request.WithContext(context.WithValue(ctx, model.CookieContextName, testUserUUID)))
+			h.ServeHTTP(w, request.WithContext(context.WithValue(ctx, toContextKey(model.CookieContextName), testUserUUID)))
 			res := w.Result()
 			defer res.Body.Close()
 			//status code
