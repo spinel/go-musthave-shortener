@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 	"github.com/spinel/go-musthave-shortener/internal/app/pkg"
@@ -29,7 +30,6 @@ func NewPingHandler(repo repository.URLStorer) http.HandlerFunc {
 func NewCreateURLHandler(cfg config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "wrong body", http.StatusBadRequest)
@@ -104,6 +104,7 @@ func NewCreateJSONURLHandler(cfg config.Config, repo repository.URLStorer) http.
 		}
 
 		userUUID := getUserUUIDFromCtx(ctx)
+
 		entity.UserUUID = userUUID
 		entity.Code = urlCode
 
@@ -181,6 +182,7 @@ func NewDeleteBatchHandler(cfg config.Config, repo repository.URLStorer) http.Ha
 		}
 
 		userUUID := getUserUUIDFromCtx(ctx)
+
 		if err := repo.EnqueueDelete(codes, userUUID); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 
@@ -271,5 +273,6 @@ func NewGetUserURLsHandler(cfg config.Config, repo repository.URLStorer) http.Ha
 func getUserUUIDFromCtx(ctx context.Context) uuid.UUID {
 	userUUIDString := ctx.Value(model.CookieContextName).(string)
 	userUUID, _ := uuid.Parse(userUUIDString)
+
 	return userUUID
 }

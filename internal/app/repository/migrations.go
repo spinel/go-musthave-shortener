@@ -12,7 +12,7 @@ import (
 // runPgMigrations runs Postgres migrations
 func runPgMigrations(cfg config.Config) error {
 	if cfg.PgMigrationsPath == "" {
-		return nil
+		return errors.New("No cfg.PgMigrationsPath provided")
 	}
 	if cfg.DatabaseDSN == "" {
 		return errors.New("No cfg.PgURL provided")
@@ -21,6 +21,7 @@ func runPgMigrations(cfg config.Config) error {
 		cfg.PgMigrationsPath,
 		cfg.DatabaseDSN,
 	)
+
 	if err != nil {
 		return err
 	}

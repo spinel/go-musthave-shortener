@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"strings"
 
 	"context"
@@ -15,18 +16,9 @@ import (
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 )
 
-type userUUID string
-
-func toUserUUID(s string) userUUID {
-	return userUUID(s)
-}
-func userUUIDtoString(u userUUID) string {
-	return string(u)
-}
-
 func CookieHandle(cfg config.Config, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var userUUID userUUID
+		var userUUID string
 
 		if cookieUserUUID, err := r.Cookie(model.CookieUserUUIDName); err != nil {
 			userUUID := uuid.New().String()
@@ -38,18 +30,18 @@ func CookieHandle(cfg config.Config, next http.Handler) http.Handler {
 			cookieSignature := newCookie(model.CookieSignatureName, stringToHmacSha256(cfg, userUUID))
 			http.SetCookie(w, cookieSignature)
 		} else {
-			userUUID = toUserUUID(cookieUserUUID.Value)
+			userUUID = cookieUserUUID.Value
 			cookieSignature, _ := r.Cookie(model.CookieSignatureName)
 			signature := cookieSignature.Value
 
-			if strings.Compare(stringToHmacSha256(cfg, userUUIDtoString(userUUID)), signature) != 0 {
+			if strings.Compare(stringToHmacSha256(cfg, userUUID), signature) != 0 {
 				w.WriteHeader(http.StatusForbidden)
 				return
 			}
 		}
 
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(),
-			toUserUUID(model.CookieContextName),
+			model.CookieContextName,
 			userUUID)))
 	})
 }
