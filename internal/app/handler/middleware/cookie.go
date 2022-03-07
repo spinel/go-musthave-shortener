@@ -20,7 +20,7 @@ func CookieHandle(cfg config.Config, next http.Handler) http.Handler {
 		var userUUID string
 
 		if cookieUserUUID, err := r.Cookie(model.CookieUserUUIDName); err != nil {
-			userUUID := uuid.New().String()
+			userUUID = uuid.New().String()
 			// userUUID cookie
 			cookieUserUUID := newCookie(model.CookieUserUUIDName, userUUID)
 			http.SetCookie(w, cookieUserUUID)
