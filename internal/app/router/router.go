@@ -2,7 +2,6 @@ package router
 
 import (
 	"net/http/pprof"
-	_ "net/http/pprof"
 
 	"github.com/gorilla/mux"
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
