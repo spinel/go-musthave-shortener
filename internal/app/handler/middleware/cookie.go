@@ -15,6 +15,7 @@ import (
 	"github.com/spinel/go-musthave-shortener/internal/app/model"
 )
 
+// CookieHandle is used to set users cookie to retrieve later.
 func CookieHandle(cfg config.Config, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var userUUID string

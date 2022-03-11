@@ -157,6 +157,7 @@ func NewGetURLHandler(cfg config.Config, repo repository.URLStorer) http.Handler
 	}
 }
 
+// NewDeleteBatchHandler is used for delete batch of items.
 func NewDeleteBatchHandler(cfg config.Config, repo repository.URLStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()

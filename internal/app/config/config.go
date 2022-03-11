@@ -11,6 +11,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+//Config is application config.
 type Config struct {
 	ServerAddress    string `envconfig:"SERVER_ADDRESS"`
 	BaseURL          string `envconfig:"BASE_URL"`
