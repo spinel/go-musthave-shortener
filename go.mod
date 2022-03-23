@@ -11,5 +11,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
+	golang.org/x/tools v0.1.5
+	honnef.co/go/tools v0.2.2
 
 )

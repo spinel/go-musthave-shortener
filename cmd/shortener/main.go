@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,11 +11,22 @@ import (
 
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
 	"github.com/spinel/go-musthave-shortener/internal/app/handler/middleware"
+	"github.com/spinel/go-musthave-shortener/internal/app/pkg"
 	"github.com/spinel/go-musthave-shortener/internal/app/repository"
 	"github.com/spinel/go-musthave-shortener/internal/app/router"
 )
 
+var (
+	buildVersion string
+	buildDate    string
+	buildCommit  string
+)
+
 func main() {
+	fmt.Printf("Build version: %s\n", pkg.CheckNA(buildVersion))
+	fmt.Printf("Build date: %s\n", pkg.CheckNA(buildDate))
+	fmt.Printf("Build commit: %s\n\n", pkg.CheckNA(buildCommit))
+
 	ctx := context.Background()
 	cfg := config.NewConfig()
 	if err := cfg.Validate(); err != nil {
