@@ -48,8 +48,14 @@ func main() {
 	}
 
 	go func() {
-		if err := server.ListenAndServe(); err != nil {
-			log.Fatal("server start failed:", err)
+		if cfg.EnableHttps {
+			if err := server.ListenAndServeTLS("", ""); err != nil {
+				log.Fatal("tls server start failed:", err)
+			}
+		} else {
+			if err := server.ListenAndServe(); err != nil {
+				log.Fatal("server start failed:", err)
+			}
 		}
 	}()
 
