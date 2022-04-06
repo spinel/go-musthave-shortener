@@ -32,6 +32,9 @@ func main() {
 	if err := cfg.Validate(); err != nil {
 		log.Fatal("config validation failed: ", err)
 	}
+	if cfg.Config != "" {
+		cfg, _ = pkg.ReadJsonFile(cfg.Config)
+	}
 
 	repo, err := repository.NewStorage(cfg)
 	if err != nil {

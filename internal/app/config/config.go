@@ -20,6 +20,7 @@ type Config struct {
 	CookieSecretKey  string `envconfig:"COOKIE_SECRET_KEY"`
 	BatchQueueSize   int    `envconfig:"BATCH_QUEUE_SIZE"`
 	EnableHttps      bool   `envconfig:"ENABLE_HTTPS"`
+	Config           string `envconfig:"CONFIG"`
 }
 
 var (
@@ -34,6 +35,7 @@ const (
 	defaultPgMigrationsPath = "file://internal/app/repository/pg/migrations"
 	defaultBatchQueueSize   = 10
 	defaultEnableHttps      = false
+	defaultConfig           = ""
 )
 
 // NewConfig is a singleton env 	config constructor
@@ -83,7 +85,8 @@ func bindFlag(config Config) {
 	flag.StringVar(&config.DatabaseDSN, "d", defaultDatabaseDSN, "database dsn")
 	flag.StringVar(&config.PgMigrationsPath, "m", defaultPgMigrationsPath, "database migrations")
 	flag.IntVar(&config.BatchQueueSize, "s", defaultBatchQueueSize, "batch queue size")
-	flag.BoolVar(&config.EnableHttps, "s", defaultEnableHttps, "batch queue size")
+	flag.BoolVar(&config.EnableHttps, "x", defaultEnableHttps, "default enable https")
+	flag.StringVar(&config.Config, "c", defaultConfig, "config")
 	flag.Parse()
 }
 

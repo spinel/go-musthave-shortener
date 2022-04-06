@@ -1,0 +1,7 @@
+{
+    "server_address": "localhost:80", 
+    "base_url": "http://localhost",
+    "file_storage_path": "urls.gob",
+    "database_dsn": "postgres://postgres:docker@localhost:5439/postgres?sslmode=disable", 
+    "enable_https": true
+}
