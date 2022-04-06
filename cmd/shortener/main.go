@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/spinel/go-musthave-shortener/internal/app/config"
@@ -22,6 +23,7 @@ var (
 	buildCommit  string
 )
 
+//syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT
 func main() {
 	fmt.Printf("Build version: %s\n", pkg.CheckNA(buildVersion))
 	fmt.Printf("Build date: %s\n", pkg.CheckNA(buildDate))
@@ -66,7 +68,7 @@ func main() {
 	stop := make(chan os.Signal, 1)
 
 	// Set os signals to the chan
-	signal.Notify(stop, os.Interrupt)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
 	// Waiting for SIGINT (pkill -2)
 	<-stop
