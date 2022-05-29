@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package entity;
+
+option go_package = "./internal/app/pkg/pb";
+
+
+service StorageService {
+  rpc GetURL(GetURLRequest) returns (GetURLResponse) {}
+  rpc CreateURL(CreateURLRequest) returns (CreateURLResponse) {}
+  rpc EnqueueDelete(EnqueueDeleteRequest) returns (EnqueueDeleteResponse) {}
+}
+
+// GetURL
+
+message GetURLRequest {
+  string url_code = 1;
+}
+
+message GetURLResponse {
+  int64 entity_id = 1;
+  string error = 2;
+}
+
+// CreateURL
+
+message CreateURLRequest {
+  string user_uuid = 1;
+  string code = 2;
+  string url = 3;
+}
+
+message CreateURLResponse {
+  int64 entity_id = 1;
+  string error = 2;
+}
+
+// EnqueueDelete
+
+message EnqueueDeleteRequest {
+  repeated string codes = 1;
+  string user_uuid = 2;
+}
+
+message EnqueueDeleteResponse {
+  string error = 1;
+}
