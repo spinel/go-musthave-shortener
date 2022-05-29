@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -52,6 +53,8 @@ func main() {
 		),
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
 		if cfg.EnableHttps {
 			if err := server.ListenAndServeTLS("", ""); err != nil {
@@ -62,7 +65,9 @@ func main() {
 				log.Fatal("server start failed:", err)
 			}
 		}
+		wg.Done()
 	}()
+	wg.Wait()
 
 	// Setting up signal capturing
 	stop := make(chan os.Signal, 1)
